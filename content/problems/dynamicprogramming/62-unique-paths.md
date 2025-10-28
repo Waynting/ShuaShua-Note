@@ -1,14 +1,12 @@
-# 62. Unique Paths
-
-## Problem Information
-- **Problem ID**: 62  
-- **Title**: Unique Paths  
-- **Difficulty**: Medium  
-- **Source**: LeetCode  
-- **Link**: https://leetcode.com/problems/unique-paths/  
-- **Topics**: Dynamic Programming, Combinatorics, Grid Traversal  
-
 ---
+title: "62. Unique Paths"
+problemId: 62
+difficulty: Medium
+source: LeetCode
+topics: Dynamic Programming, Combinatorics, Grid Traversal
+---
+
+# 62. Unique Paths
 
 ## Problem Description
 A robot is located at the top-left corner of an `m x n` grid.  
