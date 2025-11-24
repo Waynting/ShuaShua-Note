@@ -3,9 +3,17 @@
   "displayName": "Greedy",
   "problems": [
     {
+      "filename": "1578-minimum-time-to-make-rope-colorful.md",
+      "id": null
+    },
+    {
       "filename": "3494-brew-potions-note.md",
+      "id": null
+    },
+    {
+      "filename": "757-set-intersection-size-at-least-two.md",
       "id": null
     }
   ],
-  "lastUpdated": "2025-10-28T04:47:14.454Z"
+  "lastUpdated": "2025-11-24T14:44:10.119Z"
 }

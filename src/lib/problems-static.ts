@@ -114,6 +114,23 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-09-30"
   },
   {
+    "id": "leetcode-19",
+    "originalId": 19,
+    "title": "19. Remove Nth Node From End of List",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Linked List",
+      "Two Pointers"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/linkedlist/19-remove-nth-node-from-end-of-list.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/linkedlist/19-remove-nth-node-from-end-of-list.md",
+    "markdownContent": "# 19. Remove Nth Node From End of List\n\n## 題目敘述（中文整理）\n\n給定一個單向鏈結串列的頭節點 `head`，以及一個整數 `n`，請**刪除鏈結串列中「倒數第 `n` 個節點」**，並回傳刪除後的串列頭節點。  \n\n範例：  \n- `head = [1,2,3,4,5], n = 2` → 刪掉倒數第 2 個（值為 4），結果 `[1,2,3,5]`  \n- `head = [1], n = 1` → 刪掉唯一節點，結果 `[]`  \n- `head = [1,2], n = 1` → 刪掉倒數第 1 個（值為 2），結果 `[1]`  \n\n保證 `n` 一定合法（1 ≤ n ≤ 鏈表長度）。  \n\n---\n\n## 解法核心：雙指標（Two Pointers）＋ dummy 節點\n\n### 1. 為什麼需要 dummy 節點？\n\n若要刪除的是「頭節點」本身（例如 `head = [1], n = 1` 或 `head = [1,2], n = 2`），\n如果我們只從 `head` 開始，很難在刪除時同時方便地更新頭指標。  \n\n解法：  \n- 建立一個假的頭節點 `dummy`，讓：  \n  `dummy->next = head`  \n- 之後一律從 `dummy` 開始走，這樣：  \n  - 要刪除原本的頭節點時，只要修改 `dummy->next` 即可。  \n  - 最後回傳 `dummy->next` 就是正確的新頭節點。  \n\n### 2. 雙指標的設計：first & second\n\n定義：  \n- `first`：快指標  \n- `second`：慢指標  \n- 一開始都指向 `dummy`。  \n\n目標：  \n> 讓 `first` 和 `second` 保持「相距 n+1 個節點」的距離，  \n> 當 `first` 走到 `nullptr` 時，`second` 剛好停在「要刪除節點的前一個節點」。  \n\n原因：  \n- 我們想刪掉「倒數第 n 個節點」。  \n- 若 `first` 在末尾 `nullptr`，`second` 在某處：  \n  - 如果兩者距離是 n+1，那 `second->next` 就是倒數第 n 個節點。  \n  - 這時只要： `second->next = second->next->next` 就完成刪除。  \n\n### 3. 步驟拆解\n\n#### Step 1：建立 dummy，初始化指標\n\n```cpp\nListNode* dummy = new ListNode(0);\ndummy->next = head;\n\nListNode* first = dummy;\nListNode* second = dummy;\n```\n\n#### Step 2：讓 first 先走 n+1 步\n\n```cpp\nfor (int i = 0; i <= n; ++i) {\n    first = first->next;\n}\n```\n\n此時：  \n- `first` 比 `second` 超前了 **n+1 個節點**。  \n- 為什麼是 `<= n` 而不是 `< n`？  \n  - `i = 0` ~ `n` 共 `n+1` 次：包含了 dummy 本身的距離；  \n  - 我們希望最後 `second` 指在「要刪除的節點的前一個」，也就是 dummy 也算進距離中。  \n\n#### Step 3：同步移動 first 和 second\n\n```cpp\nwhile (first != nullptr) {\n    first = first->next;\n    second = second->next;\n}\n```\n\n迴圈結束時：  \n- `first == nullptr`：到達鏈表尾端之後一格。  \n- `second` 剛好停在「要刪除節點的前一個節點」。  \n\n#### Step 4：刪除節點\n\n```cpp\nListNode* tmp = second->next;          // 要被刪掉的節點\nsecond->next = second->next->next;     // 跳過它\n// delete tmp;                         // C++ 可選擇釋放記憶體（LeetCode 不強制）\n```\n\n最後回傳：  \n\n```cpp\nreturn dummy->next;\n```\n\n---\n\n## 偽碼骨架（不含完整結構宣告）\n\n> 注意：這裡是「骨架／偽碼」，不是完整可提交程式，只是幫助記憶流程。\n\n```cpp\nListNode* removeNthFromEnd(ListNode* head, int n) {\n    // 1. 建立 dummy，處理刪除頭節點的情況\n    dummy = new node(0);\n    dummy->next = head;\n\n    first = dummy;\n    second = dummy;\n\n    // 2. 讓 first 先走 n+1 步\n    for i from 0 to n:\n        first = first->next;\n\n    // 3. 同步移動 first, second\n    while (first != null):\n        first = first->next;\n        second = second->next;\n\n    // 4. 此時 second->next 就是要刪的節點\n    target = second->next;\n    second->next = second->next->next;\n    // （可選）delete target;\n\n    return dummy->next;\n}\n```\n\n---\n\n## 自己的口語理解（重點一句話版）\n\n- 先加一個 `dummy` 在鏈表最前面，避免刪頭節點時很難處理。  \n- 用 `first` 和 `second` 兩個指標：  \n  - 先讓 `first` 往前走 `n+1` 步，製造出固定距離。  \n  - 然後 `first`、`second` 一起走到 `first` 抵達尾端。  \n  - 這時 `second` 正好指在「要刪掉的那個節點的前一個」，  \n    所以只要把 `second->next` 改成 `second->next->next`，節點就被移除了。  \n\n用你的原話來說就是：  \n> 「用 `first` 當頭一路走到尾，`second` 紀錄要刪掉的點──更精確地說，其實是要刪掉節點的前一個點。」  \n\n這樣就可以在單趟（O(L)）掃描裡完成「刪除倒數第 n 個節點」。  \n",
+    "createdAt": "2025-11-24"
+  },
+  {
     "id": "leetcode-24",
     "originalId": 24,
     "title": "24. Swap Nodes in Pairs — 完整筆記（含可提交 C++ 迭代與遞迴）",
@@ -181,6 +198,23 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-10-28"
   },
   {
+    "id": "leetcode-77",
+    "originalId": 77,
+    "title": "77. Combinations",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Backtracking",
+      "DFS"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/backtracking/77-combinations.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/backtracking/77-combinations.md",
+    "markdownContent": "# 77. Combinations\n\n## 題目描述（中文整理）\n\n給定兩個整數 //n// 和 //k//，從區間 [1, n] 中選出恰好 //k// 個不同的整數，列出「所有可能的組合」。  \n注意：「組合」不考慮順序，例如 [1,2] 和 [2,1] 視為同一個組合，只保留一個。\n\n---\n\n## 解題思路\n\n### 核心觀念：回溯（Backtracking）產生所有組合\n\n1. **狀態表示**\n   - 用一個動態陣列 `path` 表示「目前已經選了哪些數字」。\n   - 用一個整數 `start` 表示「這一層 DFS 從哪一個數字開始試」。\n\n2. **終止條件**\n   - 當 `path.size() == k` 時，代表已經選滿 k 個數字：\n     - 把目前的 `path` 複製一份丟進答案 `ans`。\n     - 然後 return（不再往下選）。\n\n3. **狀態轉移（DFS 展開）**\n   - 在 `dfs(start, ...)` 這一層，我們會嘗試加入所有可以選的數字：\n     - 對 `i` 從 `start` 到 `n`：\n       1. 選 `i`：`path.push_back(i)`\n       2. 往下一層：呼叫 `dfs(i + 1, ...)`\n          - 因為組合不能重複，下一層只能選比 `i` 更大的數字。\n       3. 回溯：`path.pop_back()` 恢復現場，準備試下一個 `i`。\n\n4. **避免重複的關鍵**\n   - 透過 `start` 參數限制：\n     - 目前選了 `i` 之後，下一層只能從 `i+1` 開始選。\n     - 這樣自然就不會出現 [2,1] 這種「顛倒順序」的重複情況。\n\n5. **時間與空間複雜度（粗略估計）**\n   - 總共會產生 //C(n, k)// 個組合，每個組合長度是 //k//。\n   - **時間複雜度**：約為 //O(k · C(n, k))//。\n   - **空間複雜度**：\n     - 遞迴深度最多 //k//（因為最多選 k 個數），需要 //O(k)// 的額外空間。\n     - 回傳的答案本身需要儲存所有組合，額外是 //O(k · C(n, k))//。\n\n---\n\n## 解法 1：回溯（DFS + path + start）\n\n### 思路（口語版）\n\n- 想像人工做 n=4, k=2：\n  - 先固定第一個數字：1，後面只能從 {2,3,4} 再選一個。\n  - 再固定第一個數字：2，後面只能從 {3,4} 再選一個。\n  - 再固定 3，後面只能從 {4} 再選一個。\n  - 選 4 時，後面已經沒有數可以選了。\n- 這個「先決定當前位置要放的數，再往後遞迴」的過程，就是 DFS。\n\n### C++ 程式骨架（保留為筆記用，不是唯一寫法）\n\n```cpp\nclass Solution {\npublic:\n    vector<vector<int>> combine(int n, int k) {\n        vector<vector<int>> ans;\n        vector<int> path;\n        // 從 1 開始嘗試選數字\n        dfs(1, n, k, path, ans);\n        return ans;\n    }\n\nprivate:\n    void dfs(int start, int n, int k,\n             vector<int>& path,\n             vector<vector<int>>& ans) {\n        // 1. 終止條件：如果 path.size() == k，把 path 丟進 ans\n        if (path.size() == k) {\n            ans.push_back(path);   // 已選滿 k 個，記錄一個組合\n            return;\n        }\n\n        // 2. 從 start 開始一路選到 n\n        for (int i = start; i <= n; ++i) {\n            // 選 i\n            path.push_back(i);\n\n            // 往下層找下一個數（只能比 i 大）\n            dfs(i + 1, n, k, path, ans);\n\n            // 撤銷選擇（回溯）\n            path.pop_back();\n        }\n    }\n};\n```\n\n> 註：上面這份程式與你目前寫出的版本結構相同，只是有稍微補上中文註解，方便未來回顧。\n\n---\n\n## 可能的優化方向（進階）\n\n如果 //n// 比較大，可以做一點剪枝，減少不必要的遞迴呼叫，例如：\n\n- 當前 `path.size()` 已經是 `sz`，還需要再選 `k - sz` 個。\n- 當前迴圈的 `i` 最大不需要到 `n`，因為後面剩的數量可能不夠。\n\n可以把迴圈寫成：\n\n```cpp\nfor (int i = start; i <= n - (k - (int)path.size()) + 1; ++i) {\n    // ...\n}\n```\n\n這樣可以在某些情況下提前停止迴圈。\n\n---\n\n## Personal Notes（個人筆記）\n\n- 這題是典型「回溯模版題」，重點是記住三個元素：\n  1. `path`：目前選了什麼。\n  2. `start`：下一個數要從哪裡開始選。\n  3. 終止條件：選滿 k 個時，把 `path` 丟進 `ans`。\n- 和「排列」不同的地方是：\n  - 排列會考慮順序，通常會搭配 `used[]` 陣列。\n  - 組合不考慮順序，只往「後面」選，靠 `start` 就能避免重複。\n- 回溯題目可以用這題當模板，以後看到「從 1..n 選 k 個」「輸出所有子集／組合」時，幾乎都是這種模式。\n",
+    "createdAt": "2025-11-24"
+  },
+  {
     "id": "leetcode-90",
     "originalId": 90,
     "title": "90. Subsets II",
@@ -211,6 +245,25 @@ export const PROBLEMS: Problem[] = [
     "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/dynamicprogramming/120-triangle.md",
     "markdownContent": "# 120. Triangle\n\n## Problem Information\n- **Problem ID**: 120\n- **Title**: Triangle\n- **Difficulty**: Medium\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/triangle/\n- **Topics**: Dynamic Programming, Array\n\n## Problem Description\nGiven a triangle array, return the minimum path sum from top to bottom.\n\nAt each step, you may move to an adjacent number of the row below.  \nMore formally, if you are on index `j` on the current row, you may move to index `j` or `j+1` on the next row.\n\n**Example:**\n```\nInput: triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]\nOutput: 11\nExplanation: The minimum path is 2 -> 3 -> 5 -> 1 = 11.\n```\n\n## Solutions\n\n### Solution 1: Bottom-Up Dynamic Programming\n**Time Complexity**: O(n^2) — where n is the number of rows.  \n**Space Complexity**: O(1) extra space (reusing the triangle).\n\n#### Code\n```cpp\nclass Solution {\npublic:\n    int minimumTotal(vector<vector<int>>& triangle) {\n        for (int i = triangle.size()-2; i >= 0; --i) {\n            for (int j = 0; j <= i; ++j) {\n                triangle[i][j] += min(triangle[i+1][j], triangle[i+1][j+1]);\n            }\n        }\n        return triangle[0][0];\n    }\n};\n```\n\n---\n\n## Personal Notes\n- 一開始單純的想說用 greedy 從上往下找最小值就好，  \n  但其實這樣會錯，因為局部最小 ≠ 全局最小。  \n- 正確解法應該要 **從底部開始加總**，每一層更新為「自己 + 下一層相鄰兩個的最小值」，最後頂端就會是答案。  \n- 這題讓我理解了「自底向上的 DP」比「局部貪心」更可靠。  \n",
     "createdAt": "2025-10-05"
+  },
+  {
+    "id": "leetcode-133",
+    "originalId": 133,
+    "title": "133. Clone Graph",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Graph",
+      "DFS",
+      "BFS",
+      "Hash Map"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/graph/133-clone-graph.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/graph/133-clone-graph.md",
+    "markdownContent": "# 133. Clone Graph\n\n## 題目描述（重點中文整理）\n\n給定一個「無向連通圖」中某一個節點 `node` 的指標，每個節點結構為：\n\n```cpp\nclass Node {\npublic:\n    int val;\n    vector<Node*> neighbors;\n};\n```\n\n請回傳這整張圖的 **深拷貝（deep copy）** 的起點節點指標。\n\n條件與說明：\n\n- 每個節點的 `val` 為 1 ~ n，且等於它在測資中的 index。\n- 測資以 adjacency list 表示，例如：\n  - `[[2,4],[1,3],[2,4],[1,3]]` 代表：\n    - 1 連到 2, 4\n    - 2 連到 1, 3\n    - 3 連到 2, 4\n    - 4 連到 1, 3\n- 你必須回傳「新圖」中對應於原始 `node` 的節點指標，且：\n  - 新圖與原圖結構完全相同\n  - 所有節點都是 **新建** 的（不能共用原圖的節點）\n\n---\n\n## 解法思路整理\n\n### 為什麼需要 Hash Map（老節點 → 新節點）\n\n這題的關鍵在於：  \n我們不只是「走訪圖」，還要「建立一張一模一樣的新圖」。\n\n如果只有單純 DFS / BFS：\n\n- 你只會「看過」每個節點與邊，但不會記住「這個舊節點的 clone 節點是哪一個」。\n\n因此需要一個對照表：\n\n```cpp\nunordered_map<Node*, Node*> mp; // old node -> new node\n```\n\n在這個 map 裡：\n\n- key（前者）：原圖節點指標（old node）\n- value（後者）：新圖中對應的節點指標（cloned node）\n\n意義：\n\n- 每次第一次遇到某個原節點 `u`，就 `new Node(u->val)`，並存入 `mp[u]`。\n- 之後任何地方只要需要「u 的 clone」，就直接用 `mp[u]` 拿。\n\n---\n\n### 流程：用 DFS + stack 走圖並建新圖\n\n1. **處理空圖情況**  \n   - 如果 `node == nullptr`，直接回傳 `nullptr`。\n\n2. **初始化起點的 clone**  \n   - 建立新節點 `cloneStart = new Node(node->val)`。\n   - 在 map 裡記錄：`mp[node] = cloneStart`。\n   - 用 `stack<Node*> st` 做 DFS，先 `st.push(node)`。\n\n3. **DFS 主迴圈**  \n   當 stack 不空時：\n\n   - 取出一個原節點 `cur = st.top(); st.pop();`\n   - 找到它在新圖中的對應：`cloneCur = mp[cur]`\n   - 對於每個鄰居 `nei`：\n     1. 如果 `nei` 還沒被 clone（`mp.find(nei) == mp.end()`）：\n        - 建立 `mp[nei] = new Node(nei->val);`\n        - `st.push(nei);` 之後會處理 `nei` 的鄰居\n     2. 不管是不是第一次看到 `nei`，都可以透過 `mp[nei]` 取得 `nei` 的 clone：\n        - `cloneNei = mp[nei]`\n        - 把邊接起來：`cloneCur->neighbors.push_back(cloneNei);`\n\n4. **回傳結果**  \n   - 最後回傳 `cloneStart`（也可以寫成 `return mp[node];`）。\n\n這樣就可以從原圖的起點 `node` 出發，遍歷整張圖，並在新圖中建立對應的節點與邊。\n\n---\n\n## C++ 解法實作（DFS + stack + unordered_map）\n\n```cpp\n/*\n// Definition for a Node.\nclass Node {\npublic:\n    int val;\n    vector<Node*> neighbors;\n    Node() {\n        val = 0;\n        neighbors = vector<Node*>();\n    }\n    Node(int _val) {\n        val = _val;\n        neighbors = vector<Node*>();\n    }\n    Node(int _val, vector<Node*> _neighbors) {\n        val = _val;\n        neighbors = _neighbors;\n    }\n};\n*/\n\nclass Solution {\npublic:\n    Node* cloneGraph(Node* node) {\n        // 1. 空圖處理\n        if (node == nullptr) {\n            return nullptr;\n        }\n\n        // old node -> new node\n        unordered_map<Node*, Node*> mp;\n\n        // DFS 用的 stack\n        stack<Node*> st;\n\n        // 2. 先處理起點：建立第一個 clone，放進 map\n        Node* cloneStart = new Node(node->val);\n        mp[node] = cloneStart;\n        st.push(node);\n\n        // 3. 開始 DFS\n        while (!st.empty()) {\n            Node* cur = st.top();\n            st.pop();\n\n            // cur 對應的新節點（一定已存在於 mp）\n            Node* cloneCur = mp[cur];\n\n            // 4. 處理所有鄰居\n            for (Node* nei : cur->neighbors) {\n                // 如果第一次遇到這個鄰居，就建立它的 clone\n                if (mp.find(nei) == mp.end()) {\n                    mp[nei] = new Node(nei->val);\n                    st.push(nei);\n                }\n                // 取得鄰居的 clone，接在 cloneCur 的 neighbors 裡\n                Node* cloneNei = mp[nei];\n                cloneCur->neighbors.push_back(cloneNei);\n            }\n        }\n\n        // 5. 回傳起點的 clone\n        return cloneStart;\n    }\n};\n```\n\n---\n\n## 複雜度分析\n\n- 設圖中節點數為 `V`，邊數為 `E`。\n- 每個節點會被 push/pop 至多一次，每條邊也只會被檢查固定次數。\n\n- **時間複雜度**：  \n  \\( O(V + E) \\)\n\n- **空間複雜度**：  \n  - `unordered_map` 需要儲存所有節點的映射：\\( O(V) \\)\n  - stack 在最壞情況下可能放入 \\( O(V) \\) 個節點  \n  → 整體為 \\( O(V) \\)。\n\n---\n\n## 個人筆記 / 反思\n\n- 一開始容易把這題當成「只是 DFS / BFS」，但其實重點是：\n  - 必須構造一張「全新的圖」，\n  - 不能直接指向原圖節點。\n- 核心工具是 `unordered_map<Node*, Node*>`：\n  - **key**：原圖節點（old node）\n  - **value**：新圖對應節點（cloned node）\n- `unordered_map` 同時扮演：\n  - 記錄「old → new 映射」\n  - 標記「這個節點是否已經處理過」的角色（可以不需額外 `visited` set）\n- DFS / BFS 皆可：\n  - 這份解法用 `stack` 做 DFS，比較直觀地配合「先建 clone，再延伸鄰居」的流程。\n  - 若改成 queue 就是 BFS，整體邏輯幾乎一樣。\n\n這題做熟之後，之後遇到「複製結構」類型題目（像是複製帶 random pointer 的 linked list、複製 DAG 結構等），都會直接想到「**原物件指標 → 新物件指標的 map**」這個 pattern。\n",
+    "createdAt": "2025-11-24"
   },
   {
     "id": "leetcode-141",
@@ -258,7 +311,7 @@ export const PROBLEMS: Problem[] = [
     "noteUrl": "/content/problems/slidingwindow/0209-minimum-size-subarray-sum.md",
     "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/slidingwindow/0209-minimum-size-subarray-sum.md",
     "markdownContent": "# 209. Minimum Size Subarray Sum — 題目筆記（Sliding Window）\n\n> **筆記重點**：這題是「**全為正數**」→ **滑動視窗**的經典題。利用兩個指標維持區間 `[l, r]`，右指標擴張、左指標在總和達標時盡量收縮以取得最短長度。\n\n---\n\n## 題目重述\n給定正整數 `target` 與正整數陣列 `nums`，找出**最短**長度的連續子陣列，使其元素總和 `≥ target`；若不存在回傳 `0`。\n\n- 輸入：`target ∈ ℕ⁺`，`nums[i] ∈ ℕ⁺`\n- 輸出：最短長度（或 `0`）\n\n**解題訊號**：元素全為正 → 子陣列和對右指標單調不減 → **Sliding Window** 可在線性時間完成。\n\n---\n\n## 核心想法（Sliding Window）\n1. 維持視窗和 `win` 與左端 `l`。右端 `r` 從左至右掃描：`win += nums[r]`。\n2. 只要 `win ≥ target`，就嘗試**收縮左端**（`while`），每次都更新最短長度並移除 `nums[l]`、左端右移。\n3. 掃完後，若從未達標，回傳 `0`。\n\n**為什麼要 `while` 而不是 `if`？**  \n因為在同一個 `r` 下，可能可以向右縮 `l` 多步而仍滿足 `win ≥ target`，每縮一步都有機會得到更短答案。\n\n---\n\n## 不變量與邊界\n- **不變量**：每輪內層 `while` 結束時，`win < target` 或 `l` 已經收縮到不能再小。\n- **邊界**：\n  - 若 `nums` 為空或所有元素總和 < `target` → 回傳 `0`。\n  - 使用 `INT_MAX` 作為答案初值；若資料範圍大，`win` 建議使用 `long long` 以避免溢位。\n- **複雜度**：時間 `O(n)`；空間 `O(1)`。每個索引最多被 `l`/`r` 走過一次。\n\n---\n\n## 語言無關偽碼（骨架）\n> 僅保留結構與重點步驟，避免成為可直接提交的完整程式。\n\n```\nfunction minSubArrayLen(target, nums):\n    n = length(nums)\n    ans = +INF\n    win = 0\n    l = 0\n\n    for r from 0 to n-1:\n        win += nums[r]\n        while win >= target:\n            ans = min(ans, r - l + 1)\n            win -= nums[l]\n            l += 1\n\n    if ans == +INF: return 0\n    else: return ans\n```\n\n---\n\n## 你的解答（Snapshot）\n> 這段為你剛剛提供的 C++ 程式，用來對照筆記重點。\n\n```cpp\nclass Solution {\npublic:\n    int minSubArrayLen(int target, vector<int>& nums) {\n        \n        //sliding windows\n        int n = nums.size();\n        int win = 0, ans = INT32_MAX;\n        int winlength = 0;\n        int l = 0;\n        for(int i = 0; i < n ; ++i ){\n            win += nums[i];\n            while(win >= target){\n                winlength = i - l +1;\n                if(ans > winlength){\n                    ans = winlength;\n                }\n                win -= nums[l];\n                l++;\n            }\n        }\n        if(ans == INT32_MAX){\n            return 0;\n        }\n        return ans;\n    }\n};\n```\n\n### 極小幅建議（不改邏輯，只強化健壯性）\n- `ans` 改用 `INT_MAX`（記得 `#include <climits>`），以符合常見慣例。  \n- 若測資上限較大，`win` 可改 `long long` 避免溢位。  \n- 可省略 `winlength`，直接 `ans = min(ans, i - l + 1)`。\n\n---\n\n## 常見陷阱（Checklist）\n- ✅ 內層用 **`while (win >= target)`**，避免錯過更短長度。  \n- ✅ 不要提早 `return`，要掃完整個陣列並在每次可縮時更新最短解。  \n- ✅ 注意空陣列、無法達標時回傳 `0`。  \n- ✅ 大數據下的加總溢位（使用 `long long`）。\n\n---\n\n## 自測案例\n- `target=7, nums=[2,3,1,2,4,3]` → `2`（最短 `[4,3]`）  \n- `target=4, nums=[1,4,4]` → `1`  \n- `target=11, nums=[1,1,1,1,1,1,1,1]` → `0`  \n- 邊界：`target=3, nums=[3]` → `1`；`target=5, nums=[6]` → `1`；`target=5, nums=[1,2]` → `0`\n\n---\n\n## 變體思考\n- 若允許**負數**：滑動視窗的單調性破壞，通常改以前綴和＋平衡結構或其他技巧（例如單調佇列、二分等）依條件處理。\n- **前綴和＋二分**：亦可做本題（`O(n log n)`），但在本題的全正數設定下，滑動視窗 `O(n)` 更優雅。\n\n---\n\n## 你可以練習的微調\n1. 把 `win` 換 `long long`，移除 `winlength`，改為一行 `ans = min(ans, i - l + 1)`。\n2. 新增測資：`target=15, nums=[5,1,3,5,10,7,4,9,2,8]`，手算與程式比對。\n3. 思考：為何把 `while` 換 `if` 就可能錯過解？試舉例子。\n\n---\n\n> 筆記作者備註：  \n> 這題是「滑動視窗」在正整數陣列中的經典範式，解題重點是掌握「擴張右端、達標即收縮左端」的節奏與不變量。\n",
-    "createdAt": "2025-10-14"
+    "createdAt": "2025-10-28"
   },
   {
     "id": "leetcode-383",
@@ -293,6 +346,23 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-10-05"
   },
   {
+    "id": "leetcode-518",
+    "originalId": 518,
+    "title": "518. Coin Change II",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Dynamic Programming",
+      "Array"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/dynamicprogramming/518-coin-change-ii.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/dynamicprogramming/518-coin-change-ii.md",
+    "markdownContent": "# 518. Coin Change II\n\n## 題目敘述（中文整理）\n\n給定：  \n- 一個整數 `amount` 代表目標金額。  \n- 一個整數陣列 `coins`，代表各種不同面額的硬幣。每種硬幣可以使用「無限多枚」。  \n\n請回傳：  \n- **共有幾種「組合」方式**可以湊出剛好等於 `amount` 的金額。  \n- 若無法湊出，回傳 `0`。  \n\n注意：  \n- 這裡的「組合」不在乎順序，只在乎「用了哪些面額，各幾枚」。  \n  - 例如 `2 + 2 + 1` 和 `2 + 1 + 2` 算 **同一種**。  \n- 題目保證答案可放在 32-bit signed integer 中。  \n\n範例：\n\n- `amount = 5, coins = [1,2,5]` → 回傳 4  \n  - 5 = 5  \n  - 5 = 2 + 2 + 1  \n  - 5 = 2 + 1 + 1 + 1  \n  - 5 = 1 + 1 + 1 + 1 + 1  \n\n---\n\n## 解題核心觀念\n\n### 1. 組合 vs 排列\n\n- **只在乎每種硬幣用了幾枚**，不在乎排列順序。  \n- 典型「完全背包」＋「方案數」問題。  \n- 很適合用 DP：把「金額」拆成很多子問題。  \n\n關鍵思路：  \n> 對於某一種硬幣 coin，對每個金額 j：  \n> - 不用這種硬幣 → 繼承「不用它」時的方案數。  \n> - 可以用這種硬幣 → 可以把 j 拆成「先拿一枚 coin」＋「剩下 j - coin 的湊法」。  \n\n---\n\n## 解法一：二維 DP（狀態明確版）\n\n### 狀態定義\n\n令 `n = coins.size()`。定義：  \n\n> `dp[i][j]` = **只用前 `i` 種硬幣，湊出金額 `j` 的方案數**。  \n\n- `i` 的範圍：`0 ... n`（使用 0 種、1 種、...、n 種）  \n- `j` 的範圍：`0 ... amount`  \n\n### 初始條件（base case）\n\n- `dp[0][0] = 1`  \n  - 用 0 種硬幣湊出金額 0 → 「什麼都不拿」只有 1 種方式。  \n- `dp[0][j>0] = 0`  \n  - 沒有硬幣，但金額 > 0 → 不可能湊出來。\n\n### 狀態轉移\n\n考慮第 `i` 種硬幣，面額 `coin = coins[i-1]`：  \n\n對每個金額 `j`：\n\n1. **不用第 i 種硬幣**  \n   - 方案數 = 只用前 `i-1` 種硬幣的方案數：  \n   - `dp[i-1][j]`\n\n2. **至少用一枚第 i 種硬幣**  \n   - 先拿一枚 `coin` 之後，剩下 `j - coin` 的金額，要用「前 i 種硬幣」去湊：  \n   - `dp[i][j - coin]`（注意還是 i，而不是 i-1，因為可以重複用）\n\n綜合起來：  \n\n- 若 `j >= coin`：  \n  `dp[i][j] = dp[i-1][j] + dp[i][j - coin]`\n- 若 `j < coin`：  \n  `dp[i][j] = dp[i-1][j]`（硬幣太大，沒辦法用）\n\n答案為： `dp[n][amount]`。\n\n### 二維 DP 偽碼（接近 C++，但保留為骨架）\n\n```cpp\nint change(int amount, vector<int>& coins) {\n    int n = coins.size();\n    // dp[i][j]：用前 i 種硬幣湊出金額 j 的方案數\n    vector<vector<long long>> dp(n + 1, vector<long long>(amount + 1, 0));\n\n    dp[0][0] = 1; // base case\n\n    for (int i = 1; i <= n; ++i) {\n        int coin = coins[i - 1];\n        for (int j = 0; j <= amount; ++j) {\n            // 不用第 i 種硬幣\n            dp[i][j] = dp[i - 1][j];\n            // 若可以用第 i 種硬幣，再加上用它的情況\n            if (j >= coin) {\n                dp[i][j] += dp[i][j - coin];\n            }\n        }\n    }\n\n    return (int)dp[n][amount];\n}\n```\n\n> 筆記：  \n> - `dp[i][j - coin]` 代表「已經決定要用至少一枚第 i 種硬幣，剩下的金額用前 i 種繼續湊」。  \n> - 這個寫法的好處是「狀態意義非常清楚」，比較不容易搞錯，但空間是 `O(n * amount)`。  \n\n---\n\n## 解法二：一維 DP（空間優化版）\n\n### 狀態定義（改成一維）\n\n用一個一維陣列：  \n\n> `dp[j]` = **用目前已經處理過的那些硬幣，湊出金額 `j` 的方案數**。  \n\n初始化：  \n\n- `dp[0] = 1`：湊出 0 元的方式只有「什麼都不拿」。  \n- 其他 `dp[j>0] = 0`。  \n\n### 迴圈順序（非常重要）\n\n我們對每一種硬幣 `coin`：「更新所有金額 j」。  \n\n```cpp\nfor (coin in coins) {              // 外層：硬幣\n    for (j = coin; j <= amount; ++j) {  // 內層：金額，遞增\n        dp[j] += dp[j - coin];\n    }\n}\n```\n\n解釋：  \n\n- 當處理到某個 `coin` 時：  \n  - `dp[j]` 原本代表「只用前面那些硬幣」湊出 j 的方式數；  \n  - `dp[j - coin]` 則代表「只用前面那些硬幣 + 當前 coin」湊出 j-coin 的方式數；  \n  - 加上 `coin` 一枚，就能變成湊出 j 的新方式。  \n- 由於 j 是從小到大遞增，所以：  \n  - 每種 `coin` 更新 `dp` 的過程中，不會重複把「硬幣順序不同」的情況算多次；  \n  - 這樣保證算的是「組合」而不是「排列」。  \n\n### 一維 DP 偽碼（接近 C++，但略為骨架）\n\n```cpp\nint change(int amount, vector<int>& coins) {\n    vector<int> dp(amount + 1, 0);\n    dp[0] = 1; // base case\n\n    // 外層：遍歷每一種硬幣（確保是「組合」而不是「排列」）\n    for (int coin : coins) {\n        // 內層：金額從 coin 跑到 amount（遞增）\n        for (int j = coin; j <= amount; ++j) {\n            // 新的方式：在「湊出 j - coin 的所有方式」後面再加 1 枚 coin\n            dp[j] += dp[j - coin];\n        }\n    }\n\n    return dp[amount];\n}\n```\n\n### 複雜度分析\n\n- 時間複雜度：`O(n * amount)`  \n- 空間複雜度：  \n  - 二維 DP：`O(n * amount)`  \n  - 一維 DP：`O(amount)`  \n\n---\n\n## 筆記與心得\n\n1. **關鍵觀念：撇除 & 扣掉**\n   - 對每一種硬幣 `coin`、每個金額 `j`：  \n     - 「**撇除不用這個硬幣**」→ 延續原本的 `dp[i-1][j]` 或一維版的舊 `dp[j]`。  \n     - 「**如果 j >= coin，就可以扣掉一枚 coin**」→ 加上 `dp[i][j-coin]`（二維）或 `dp[j-coin]`（一維）。  \n   - 這兩個概念結合起來，就自然得到轉移式：  \n     > `目前的方案數 = 不用這個硬幣的方案 + 至少用一枚這個硬幣的方案`。  \n\n2. **為什麼一維版外層要是硬幣，內層是金額遞增？**\n   - 外層是硬幣：確保每種硬幣只被「引入一次」，不會因為順序不同造成重複計數。  \n   - 內層金額 j 遞增：在同一個硬幣處理過程中，`dp[j - coin]` 代表「可以用目前這個硬幣多次」，符合「完全背包」的性質。  \n\n3. **常見錯誤點**\n   - 把 j 的迴圈寫成「遞減」，就會變成「0-1 背包」邏輯（每種硬幣只能用一次），答案會錯。  \n   - 外層如果是 `j`、內層是 `coin`，就容易數到「排列」而不是「組合」。  \n   - 在二維 DP 中，寫成 `dp[i][j] = dp[i-1][j] + dp[i-1][j-coin]` 也會變成「每種硬幣最多用一次」，不符合本題「無限枚」的設定。  \n\n4. **自己理解後的口語版總結**\n   - 「這題就是：**對每個金額 j，方法數 = 不用這枚硬幣的方式＋至少用一枚這枚硬幣的方式**。」  \n   - 一維版本的迴圈順序就是在確保「只算組合，不算排列」，而且順手把空間壓到 `O(amount)`。  \n\n",
+    "createdAt": "2025-11-24"
+  },
+  {
     "id": "leetcode-543",
     "originalId": 543,
     "title": "543. Diameter of Binary Tree",
@@ -307,6 +377,59 @@ export const PROBLEMS: Problem[] = [
     "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/tree/0543-diameter-of-binary-tree.md",
     "markdownContent": "# 543. Diameter of Binary Tree\n\n## Problem Information\n- **Problem ID**: 543\n- **Title**: Diameter of Binary Tree\n- **Difficulty**: Easy\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/diameter-of-binary-tree/description/\n- **Topics**: Tree, DFS\n\n## Problem Description\n\nGiven the root of a binary tree, return the length of the diameter of the tree.\n\nThe diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.\n\n## Solutions\n\n### Solution 1: DFS Recursion\n**Time Complexity**: O(n)\n**Space Complexity**: O(h), where h is the height of the tree\n\n#### Code\n```cpp\n/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int max_diameter = 0;\n\n    int dfs(TreeNode* node) {\n        if (node == nullptr) return 0;\n\n        int left = dfs(node->left);\n        int right = dfs(node->right);\n\n        max_diameter = max(max_diameter, left + right);\n\n        return max(left, right) + 1;\n    }\n\n    int diameterOfBinaryTree(TreeNode* root) {\n        dfs(root);\n        return max_diameter;\n    }\n};\n```\n\n## Personal Notes\nFirst tree DFS problem I solved. The tricky part was realizing that I need to track the maximum diameter separately while calculating depths. The global variable approach worked well here.",
     "createdAt": "2025-09-30"
+  },
+  {
+    "id": "leetcode-757",
+    "originalId": 757,
+    "title": "757. Set Intersection Size At Least Two",
+    "difficulty": "Hard",
+    "source": "LeetCode",
+    "topics": [
+      "Greedy",
+      "Interval",
+      "Sorting"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/greedy/757-set-intersection-size-at-least-two.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/greedy/757-set-intersection-size-at-least-two.md",
+    "markdownContent": "# 757. Set Intersection Size At Least Two\n\n## 題目敘述（中文整理）\n\n給定一個 2D 整數陣列 `intervals`，其中：  \n\n- `intervals[i] = [start_i, end_i]`  \n- 表示這個區間包含所有從 `start_i` 到 `end_i` 的整數（**閉區間**）。  \n\n我們定義一個「**containing set**」為一個整數陣列 `nums`，若它滿足：  \n\n> 對於 `intervals` 裡的每一個區間 `[start_i, end_i]`，  \n> 在 `nums` 裡面，**至少有兩個整數** 也落在這個區間裡。  \n\n換句話說：  \n- 對每個區間 `[start_i, end_i]`，  \n- `| { x ∈ nums | start_i ≤ x ≤ end_i } | ≥ 2`。  \n\n要求：  \n> 回傳一個 **最小可能大小** 的 containing set 的大小（不需要回傳實際陣列）。  \n\n---\n\n### 範例簡述\n\n#### Example 1\n\n```text\nintervals = [[1,3],[3,7],[8,9]]\nOutput = 5\n```\n\n一個合法的 `nums` 可以是： `[2,3,4,8,9]`  \n\n- 對 `[1,3]`：交集是 `{2,3}` → 至少 2 個 ✅  \n- 對 `[3,7]`：交集是 `{3,4}` → 至少 2 個 ✅  \n- 對 `[8,9]`：交集是 `{8,9}` → 至少 2 個 ✅  \n\n證明可以 show 出來：不可能用少於 5 個數字達成。  \n\n#### Example 2\n\n```text\nintervals = [[1,3],[1,4],[2,5],[3,5]]\nOutput = 3\n```\n\n一個合法的 `nums` 可以是： `[2,3,4]`。  \n\n#### Example 3\n\n```text\nintervals = [[1,2],[2,3],[2,4],[4,5]]\nOutput = 5\n```\n\n一個合法的 `nums` 可以是： `[1,2,3,4,5]`，且無法用 4 個數字就覆蓋所有區間。  \n\n---\n\n## 解題核心觀念（中文口語版）\n\n### 1. 目標：每個區間至少有兩個被選的點\n\n我們要選一些整數，形成一個集合 `nums`，讓：  \n- 每個 `[start_i, end_i]` 內至少有兩個整數來自 `nums`。  \n- 而且要求 `nums` 的大小盡量小。  \n\n**關鍵直覺**：  \n> 「點要盡量選在區間的**右邊**」，  \n> 這樣能被「後面的區間」重複使用，才有機會讓總點數最小。  \n\n---\n\n### 2. 排序策略：右端點升序、右端相同時左端點降序\n\n我們先對所有區間排序，排序規則是：  \n\n1. 先依照右端點 `end` 從小到大排。  \n2. 若右端點相同，左端點 `start` 較大的排在前面。  \n\n對應到程式比較函式：\n\n```cpp\nbool comp(vector<int> &a, vector<int> &b) {\n    if (a[1] != b[1]) return a[1] < b[1]; // end 小的在前\n    return a[0] > b[0];                   // end 相同時，start 大的在前\n}\n```\n\n這樣做是為了避免：  \n- 一個區間完全被另一個包含時（例如 `[1,5]` 包住 `[3,5]`），  \n- 把「短、靠右的」區間先處理，能更精準地在右端放點，避免浪費。  \n\n---\n\n### 3. 維護「目前最大、次大的點」：a, b\n\n我們不需要真的存整個 `nums`，只要維護：  \n\n- `a`：目前已選點中 **第二大的值**  \n- `b`：目前已選點中 **最大的一個值**  \n\n並維護 `ans`：代表目前總共選了幾個點。  \n\n初始化：\n\n```cpp\nint a, b = INT_MIN;\nint ans = 0;\n```\n\n（`a` 之後會在第一次需要時被賦值，`b` 先設成極小）\n\n---\n\n### 4. 掃過排序後的每一個區間 [L, R] 的判斷邏輯\n\n對於每個排序後的區間 `[L, R]`，依序處理：\n\n#### 情況一：`b < L`\n\n代表：  \n> 目前所有已選點的「最大值」 `b`，都比 `L` 小，  \n> 即 `{a, b}` 這兩個點 **都不在** 區間 `[L, R]` 裡。  \n\n也就是說：這個區間「目前完全沒被覆蓋到」→ 還欠 **兩個點**。  \n\n最好的做法：在這個區間的最右邊選兩個點： `R-1` 和 `R`。\n\n```cpp\nif (b < L) {\n    a = R - 1;\n    b = R;\n    ans += 2;\n}\n```\n\n為什麼選 `R-1` 和 `R`？  \n> 因為這是「最右邊兩個點」，最有機會被後面區間重複利用。  \n\n---\n\n#### 情況二：`b >= L` 但 `a < L`（也就是 `a < L <= b`）\n\n這種情況表示：  \n\n- `b` 在 `[L, R]` 內（因為排序後 `b` 不會大於現在的 `R`）。  \n- `a` 不在這個區間內。  \n\n所以目前這個區間 **只被一個點（b）覆蓋**，還缺一個點。  \n\n最省的做法：在這個區間最右端再補一個 `R`：\n\n```cpp\nelse if (a < L) {\n    a = b;      // 原本最大點退位成第二大\n    b = R;      // 新選的 R 成為最新最大\n    ans += 1;\n}\n```\n\n如此一來， `[L, R]` 會有 `{b, R}` 兩個點，而這個新的 `R` 又盡可能靠右，可以幫助未來的區間。  \n\n---\n\n#### 情況三：`a >= L`（代表 a 和 b 都在區間內）\n\n- 此時 `a` 和 `b` 兩個點都在 `[L, R]` 中。  \n- 代表這個區間已經有至少兩個點覆蓋，不需要再新增點。  \n\n程式中不用特別寫 `else` 處理，跳過這個區間即可。  \n\n---\n\n## 完整程式骨架（你寫的版本整理）\n\n```cpp\nbool comp(vector<int> &a, vector<int> &b) {\n    if (a[1] != b[1]) return a[1] < b[1]; // end 小的先\n    return a[0] > b[0];                   // end 相同時，start 大的先\n}\n\nclass Solution {\npublic:\n    int intersectionSizeTwo(vector<vector<int>>& intervals) {\n        sort(intervals.begin(), intervals.end(), comp);\n        \n        int a, b = INT_MIN; // a: second largest, b: largest\n        int ans = 0;        // 已選點的總數\n        \n        for (auto interval : intervals) {\n            int L = interval[0];\n            int R = interval[1];\n            \n            if (b < L) {\n                // 目前兩個點都不在 [L, R] 裡 → 要補兩個新點：R-1, R\n                a = R - 1;\n                b = R;\n                ans += 2;\n            } else if (a < L) {\n                // 目前只有 b 在 [L, R] 裡 → 再補一個新點 R\n                a = b;\n                b = R;\n                ans += 1;\n            }\n            // 否則：a >= L → a, b 都在區間內，不用補點\n        }\n        \n        return ans;\n    }\n};\n```\n\n---\n\n## 自己的口語總結（方便考前翻閱）\n\n> 這題的關鍵是：  \n> 1. **先把區間照右端點從小到大排，右端相同時左端大的放前面。**  \n> 2. 只維護「目前選到的最大點 b 和第二大點 a」。  \n> 3. 對每個區間 [L, R]：  \n>    - 如果 `b < L` → 這個區間一個點都沒覆蓋到 → 在最右邊補 `R-1, R`，`ans += 2`。  \n>    - 否則如果 `a < L` → 目前只有一個點在區間內（b 在、a 不在）→ 補 `R` 一個點，`ans += 1`。  \n>    - 否則 `a >= L` → a, b 都在區間內 → 已經至少兩個點，不用再補。  \n> 4. 點永遠盡量往右邊放，才可以給越多後面的區間共用。  \n\n這份解法是這題經典的 Greedy 答案，建議你直接收進「區間＋貪心」模版。  \n之後遇到「每個區間要至少 K 個點」的變形題，也可以用這個思路往下推廣。  \n",
+    "createdAt": "2025-11-24"
+  },
+  {
+    "id": "leetcode-1262",
+    "originalId": 1262,
+    "title": "1262. Greatest Sum Divisible by Three",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Array",
+      "Dynamic Programming",
+      "Modulo"
+    ],
+    "description": "給定一個整數陣列 `nums`，你可以從中選出任意個元素（也可以一個都不選），",
+    "hasNote": true,
+    "noteUrl": "/content/problems/dynamicprogramming/1262-greatest-sum-divisible-by-three.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/dynamicprogramming/1262-greatest-sum-divisible-by-three.md",
+    "markdownContent": "# 1262. Greatest Sum Divisible by Three\n\n## Problem Description\n\n給定一個整數陣列 `nums`，你可以從中選出任意個元素（也可以一個都不選），\n目標是讓「選出的元素總和」**可以被 3 整除**，且這個總和要 **盡可能大**。  \n回傳這個最大總和。\n\n- 1 <= nums.length <= 4 * 10^4  \n- 1 <= nums[i] <= 10^4  \n\n---\n\n## Solutions\n\n### Solution 1: DP on (sum % 3)\n\n#### 核心想法（中文）\n\n因為我們只在意「總和能不能被 3 整除」，\n所以不需要記錄「所有可能的總和」，只要記錄：  \n> 對於「餘數 r = 0, 1, 2」，目前能達到的 **最大總和** 是多少？\n\n定義一個長度為 3 的陣列 `dp`：\n\n- `dp[0]`：目前能湊出、**總和 % 3 == 0** 的最大總和\n- `dp[1]`：目前能湊出、**總和 % 3 == 1** 的最大總和\n- `dp[2]`：目前能湊出、**總和 % 3 == 2** 的最大總和\n\n初始化：\n\n- 一開始什麼都不選，總和 = 0，`0 % 3 == 0` ⇒ `dp[0] = 0`\n- 其他餘數暫時「不可達」，用 -1 表示：`dp[1] = dp[2] = -1`\n\n對每一個新數字 `x`，考慮兩種選項：\n\n1. 不選它：原來的 `dp` 狀態都保留。\n2. 選它：對於每個目前可達的餘數 `r`（`dp[r] != -1`），\n   - 新的總和 = `dp[r] + x`\n   - 新的餘數 `nr = (r + x) % 3`\n   - 用這個新的總和來更新 `dp[nr]` 的最大值。\n\n實作時要小心：\n\n- 不能直接在 `dp` 上原地更新，否則同一輪會「吃到剛更新的值」，產生錯誤。\n- 做法：每一輪先複製一份 `new_dp = dp`，\n  再用舊的 `dp` 來更新 `new_dp`，最後 `dp = new_dp`。\n\n你原本的筆記：\n\n> 概念是每碰到一個新的數字，就確認每個餘數的 bucket 加上他後的餘數會變多少，然後去跟原先狀態的數值比，取大值更新。\n\n這句話其實就是在描述上面的轉移：  \n-「每個餘數的 bucket」 = `dp[0]`, `dp[1]`, `dp[2]`  \n-「加上他後的餘數」 = `(r + x) % 3`  \n-「跟原先狀態比、取大值」 = `new_dp[nr] = max(new_dp[nr], dp[r] + x)`\n\n最後答案就是 `dp[0]`：  \n因為它代表「總和 % 3 == 0 時，最大的總和」。\n\n---\n\n#### 複雜度分析\n\n- 時間複雜度：\n  - 每個元素只處理一次，且每次只更新餘數 0,1,2 三種狀態\n  - ⇒ **O(n)**，其中 `n = nums.length`\n- 空間複雜度：\n  - `dp` 與 `new_dp` 都是大小固定為 3 的陣列\n  - ⇒ **O(1)** 額外空間\n\n---\n\n#### Code (C++17)\n\n```cpp\nclass Solution {\npublic:\n    int maxSumDivThree(vector<int>& nums) {\n        int n = nums.size();\n        // dp[r] = 目前能湊出「總和 % 3 == r」的最大總和，-1 代表不可達\n        vector<int> dp(3, -1);\n        dp[0] = 0;  // 還沒選任何數時，和為 0，餘數是 0\n\n        for (int i = 0; i < n; ++i) {\n            int x = nums[i];\n            // 複製一份，避免本輪更新時使用到已更新的值\n            vector<int> new_dp(dp);\n            for (int r = 0; r < 3; ++r) {\n                if (dp[r] != -1) {             // 這個餘數目前可達\n                    int nr = (r + x) % 3;      // 新的餘數\n                    new_dp[nr] = max(new_dp[nr], dp[r] + x);\n                }\n            }\n            dp.swap(new_dp);\n        }\n\n        // dp[0] 是總和 % 3 == 0 的最大總和\n        return max(0, dp[0]);\n    }\n};\n```\n\n---\n\n## Personal Notes（個人筆記）\n\n- 這題看起來像是「子序列選取 + 整除條件」，暴力列舉所有子集會是 2^n，完全不可行。\n- 關鍵 insight 是：我們只 care 「總和 % 3」，所以 state 只需要 3 個，這就是一種 **壓縮 DP** 的典型例子。\n- 一開始我可能會想到把所有數依 `num % 3` 分 bucket，做貪心（刪掉最小的幾個），那也是常見解法；但 DP 版本更泛用，也很適合熟悉「mod DP」。\n- Bug 容易出在：  \n  1. `dp` 初始化錯誤（忘記 `dp[0] = 0`、其他要設為 -1）  \n  2. 同一輪迴圈裡直接改 `dp`，而不是用 `new_dp` 暫存  \n- 把這題想成：「三個 bucket（余 0/1/2），每來一個新的數字，就試試看放進每個 bucket 會變成什麼餘數、總和是多少，然後只留下每個餘數的那個 **最大總和**」就很好記。\n\n",
+    "createdAt": "2025-11-24"
+  },
+  {
+    "id": "leetcode-1578",
+    "originalId": 1578,
+    "title": "1578. Minimum Time to Make Rope Colorful",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Greedy",
+      "Array"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/greedy/1578-minimum-time-to-make-rope-colorful.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/greedy/1578-minimum-time-to-make-rope-colorful.md",
+    "markdownContent": "# 1578. Minimum Time to Make Rope Colorful\n\n> 類型：Greedy 一次掃描 | 難度：Medium\n> 關鍵觀念：**每段連續相同顏色，只保留耗時最大的那一顆，其餘全部移除**。等價於「段內總和 − 段內最大值」。\n\n---\n\n## 題意重述（用自己的話）\n有一串氣球，`colors[i]` 是第 `i` 顆的顏色，`neededTime[i]` 是移除該顆所需時間。要讓整條繩子**不出現相鄰同色**。可任意移除部分氣球，目標是**最小化總移除時間**。\n\n---\n\n## 解題策略（Greedy，單趟）\n- 掃描整串字元，把相鄰同色視為「一段」。  \n- 在同一段中，最後一定**只留一顆**；為使總成本最小，應**保留耗時最大**的那顆，其餘全部刪掉。  \n- 實作時不需真的刪元素：\n  - 維護 `keep` = 目前這段中「保留者」的耗時（段內最大值）。\n  - 當遇到同色時：把 `min(keep, neededTime[i])` 加到答案（刪掉較小的那顆），再令 `keep = max(keep, neededTime[i])`。  \n  - 當換色時：這段結束，新段 `keep = neededTime[i]`。\n\n> 為什麼正確？  \n> 對任一段，移除總成本固定為「總和 − 最大值」。逐一比較時，每次只刪掉兩者中較小者，等同最終只保留段內最大者。\n\n---\n\n## 你的實作（C++17）\n```cpp\nclass Solution {\npublic:\n    int minCost(string colors, vector<int>& neededTime) {\n        int ans = 0;\n        int keep = neededTime[0];\n        for(int i = 1; i < colors.length(); ++i ){\n            if(colors[i] == colors[i-1]){\n                ans += min(keep, neededTime[i]);\n                keep = max(keep, neededTime[i]);\n            }\n            else{\n                keep = neededTime[i];\n            }\n        }\n        return ans;\n    }\n};\n```\n\n---\n\n## 複雜度\n- 時間：`O(n)`（單次線性掃描）。  \n- 空間：`O(1)` 額外空間（原地只用常數變數）。\n\n---\n\n## 邊界與常見坑\n- 長度 `n = 0/1` → 答案為 `0`。  \n- 只比較 `i` 與 `i-1`，避免越界；避免用 `i+1` 造成漏算或麻煩的邊界處理。  \n- 不需要真的刪資料結構（不必 `erase/remove`），直接累加要刪除的耗時即可。\n\n---\n\n## 一句話總結\n**同色連續段只留一顆、且保留段內耗時最大的那顆**，答案即為把其他較小者的耗時全部加總。\n",
+    "createdAt": "2025-11-24"
   },
   {
     "id": "leetcode-2099",
@@ -520,11 +643,11 @@ export const getTopicStats = () => [
   },
   {
     "topic": "Two Pointers",
-    "count": 1
+    "count": 2
   },
   {
     "topic": "Array",
-    "count": 5
+    "count": 8
   },
   {
     "topic": "String",
@@ -535,12 +658,16 @@ export const getTopicStats = () => [
     "count": 3
   },
   {
+    "topic": "Linked List",
+    "count": 1
+  },
+  {
     "topic": "BinarySearch",
     "count": 3
   },
   {
     "topic": "Dynamic Programming",
-    "count": 2
+    "count": 4
   },
   {
     "topic": "Combinatorics",
@@ -552,11 +679,27 @@ export const getTopicStats = () => [
   },
   {
     "topic": "Backtracking",
-    "count": 1
+    "count": 2
+  },
+  {
+    "topic": "DFS",
+    "count": 2
   },
   {
     "topic": "DynamicProgramming",
     "count": 2
+  },
+  {
+    "topic": "Graph",
+    "count": 1
+  },
+  {
+    "topic": "BFS",
+    "count": 1
+  },
+  {
+    "topic": "Hash Map",
+    "count": 1
   },
   {
     "topic": "HashTable",
@@ -571,23 +714,35 @@ export const getTopicStats = () => [
     "count": 1
   },
   {
+    "topic": "Greedy",
+    "count": 4
+  },
+  {
+    "topic": "Interval",
+    "count": 1
+  },
+  {
+    "topic": "Sorting",
+    "count": 1
+  },
+  {
+    "topic": "Modulo",
+    "count": 1
+  },
+  {
     "topic": "Sort",
     "count": 1
   },
   {
     "topic": "Hash Table",
     "count": 1
-  },
-  {
-    "topic": "Greedy",
-    "count": 2
   }
 ];
 
 export const getDifficultyStats = () => ({
   "Easy": 0,
-  "Medium": 28,
-  "Hard": 0
+  "Medium": 34,
+  "Hard": 1
 });
 
 export const getAllProblems = () => PROBLEMS;
