@@ -3,6 +3,10 @@
   "displayName": "String",
   "problems": [
     {
+      "filename": "0005-longest-palindromic-substring-dp.md",
+      "id": null
+    },
+    {
       "filename": "0005-longest-palindromic-substring.md",
       "id": null
     },
@@ -15,5 +19,5 @@
       "id": null
     }
   ],
-  "lastUpdated": "2025-11-24T14:44:10.120Z"
+  "lastUpdated": "2025-12-16T17:02:05.161Z"
 }

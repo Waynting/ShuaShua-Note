@@ -68,6 +68,22 @@ export const PROBLEMS: Problem[] = [
   {
     "id": "leetcode-5",
     "originalId": 5,
+    "title": "5. Longest Palindromic Substring — 筆記（DP 版本）",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "String"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/string/0005-longest-palindromic-substring-dp.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/string/0005-longest-palindromic-substring-dp.md",
+    "markdownContent": "# 5. Longest Palindromic Substring — 筆記（DP 版本）\n\n## 0. 問題資訊\n- **Problem ID**: 5  \n- **Title**: Longest Palindromic Substring  \n- **Difficulty**: Medium  \n- **Link**: https://leetcode.com/problems/longest-palindromic-substring/  \n- **Tags**: DP, String  \n\n---\n\n## 1. 題目重述（中文）\n給一個字串 `s`，回傳 **最長的回文子字串**（substring，必須連續）。\n\n---\n\n## 2. DP 解法核心概念（中文）\n定義一個 DP table：\n\n```\nP[i][j] = 子字串 s[i..j] 是否為回文\n```\n\n### 初始條件\n1. **單一字元一定是回文：**\n```\nP[i][i] = true\n```\n2. **長度為 2：**\n```\nP[i][i+1] = (s[i] == s[i+1])\n```\n\n### 遞迴轉移（長度 ≥ 3）\n一段 s[i..j] 是回文 **iff：**\n```\ns[i] == s[j]  AND  P[i+1][j-1] == true\n```\n\n### 最終答案\n遍歷所有 `(i, j)` 找：\n```\nmax length = j - i + 1\n且 P[i][j] == true\n```\n\n---\n\n## 3. DP 數學描述（整理版）\n### 狀態\n\\[\nP[i][j] = \n\\begin{cases}\ntrue & \\text{if } s[i..j] \\text{ is palindrome} \\\\\nfalse & \\text{otherwise}\n\\end{cases}\n\\]\n\n### 初始條件\n\\[\nP[i][i] = true\n\\]\n\n\\[\nP[i][i+1] = (s[i] = s[i+1])\n\\]\n\n### 遞迴（長度 ≥ 3）\n\\[\nP[i][j] = (s[i] = s[j]) \\land P[i+1][j-1], \\quad \\text{for } j - i \\ge 2\n\\]\n\n### 最長回文長度\n\\[\nL^* = \\max \\{ j - i + 1 \\mid P[i][j] = true \\}\n\\]\n\n### 所有最長回文位置集合\n\\[\n\\{ (i, j) \\mid P[i][j] = true,\\ j - i + 1 = L^* \\}\n\\]\n\n---\n\n## 4. 語言無關偽碼（不可提交）\n\n```\ninitialize P[n][n] = false\nfor i in 0..n-1:\n    P[i][i] = true\n    record answer length = 1\n\nfor len = 2..n:\n    for i in 0..n-len:\n        j = i + len - 1\n        if s[i] == s[j]:\n            if len == 2:\n                P[i][j] = true\n            else:\n                P[i][j] = P[i+1][j-1]\n        if P[i][j] == true:\n            update best answer\n```\n\n---\n\n## 5. 時間與空間複雜度\n- **時間複雜度**：O(n²)  \n- **空間複雜度**：O(n²)\n\n---\n\n## 6. 個人筆記（中文）\n- 用 DP 做 longest palindromic substring 記得順序：從短 → 長。\n- 轉移關鍵：最外層兩個字要相等，內層 dp[i+1][j-1] 必須是回文。\n- 最容易錯：`substr(i, length)` 要用長度，不是右邊界 index。\n\n---\n\n",
+    "createdAt": "2025-11-29"
+  },
+  {
+    "id": "leetcode-5",
+    "originalId": 5,
     "title": "5. Longest Palindromic Substring",
     "difficulty": "Medium",
     "source": "LeetCode",
@@ -314,6 +330,22 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-10-28"
   },
   {
+    "id": "leetcode-347",
+    "originalId": 347,
+    "title": "347. Top K Frequent Elements",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "HashTable"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/hashtable/347-top-k-frequent-elements.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/hashtable/347-top-k-frequent-elements.md",
+    "markdownContent": "# 347. Top K Frequent Elements\n\n## Problem Information\n- **Problem ID**: 347\n- **Title**: Top K Frequent Elements\n- **Difficulty**: Medium\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/top-k-frequent-elements/\n- **Topics**: Hash Table, Bucket Sort, Heap, Sorting\n\n## Problem Description\n給定整數陣列 `nums` 與整數 `k`，回傳出現次數最高的 **k 個元素**（順序不限）。  \nFollow-up 要求：時間複雜度必須 **優於 O(n log n)**（n 是陣列長度）。\n\n---\n\n## Solution 1: Frequency Map + Bucket（Bucket Sort by Frequency）\n\n### 核心想法\n- 先用 `unordered_map` 統計每個數字的頻率 `freq[x]`。\n- 頻率的範圍一定在 **1..n**（最多每個元素都一樣，頻率就是 n）。\n- 所以可以建立 `bucket[f]`：存放「出現 **f 次** 的所有數字」。\n- 之後從 `f = n` 往下掃描 bucket，把元素加入答案直到湊滿 k 個。\n\n這樣就避開了「把所有 unique 元素丟進 heap / 排序」的 `log` 因子，達到線性等級。\n\n### Why it works（直覺正確性）\n- `bucket[f]` 裡面全部都是頻率為 f 的數字，因此從高頻率往下掃，拿到的順序必然是「頻率由高到低」。\n- 題目保證答案唯一，因此直接取到 k 個就可停止。\n\n### Time / Space Complexity\n- **Time Complexity**: `O(n)`\n  - 計數：`O(n)`\n  - 把 u 個 unique 放入 bucket：`O(u)`（u ≤ n）\n  - 從 n 掃到 1：`O(n)`（掃描 bucket 的 index）\n  - 整體：`O(n + u + n) = O(n)`\n- **Space Complexity**: `O(n)`\n  - `unordered_map` 需要 `O(u)`\n  - `bucket` 大小 `n+1`，最壞情況總共也只會塞入 u 個元素，但結構本身是 `O(n)` 的容器。\n\n---\n\n### Code（C++17，可提交）\n```cpp\n#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> topKFrequent(vector<int>& nums, int k) {\n        unordered_map<int,int> freq;\n        freq.reserve(nums.size() * 2);\n\n        for (int x : nums) freq[x]++;\n\n        int n = (int)nums.size();\n        vector<vector<int>> bucket(n + 1); // bucket[f] = numbers with frequency f\n\n        for (auto &p : freq) {\n            int num = p.first;\n            int f = p.second;\n            bucket[f].push_back(num);\n        }\n\n        vector<int> ans;\n        ans.reserve(k);\n\n        for (int f = n; f >= 1 && (int)ans.size() < k; --f) {\n            for (int num : bucket[f]) {\n                ans.push_back(num);\n                if ((int)ans.size() == k) break;\n            }\n        }\n        return ans;\n    }\n};\n```\n\n---\n\n## (Optional) Solution 2: Min-Heap of Size k（如果 k 很小）\n> 你原本寫的是 max-heap 丟全部 unique（最壞 `O(n log n)`）。  \n> 改成 min-heap 只維持 k 個候選：`O(n + u log k)`，k 遠小於 n 時很快。\n\n---\n\n## Personal Notes\n- 你的 max-heap 版本在實務上好寫也常過，但 follow-up 要「比 O(n log n) 更好」時，bucket 是最穩的線性解。\n- Bucket 的關鍵在於：**頻率上界是 n**，因此可以拿「頻率」當作 index 做分類。\n- 寫 bucket 時最容易忘記：`vector<vector<int>> bucket(n+1)` 必須用 `n` 而不是 `u`，因為頻率最大是 n。\n",
+    "createdAt": "2025-12-12"
+  },
+  {
     "id": "leetcode-383",
     "originalId": 383,
     "title": "383. Ransom Note",
@@ -397,6 +429,23 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-11-24"
   },
   {
+    "id": "leetcode-1015",
+    "originalId": 1015,
+    "title": "1015. Smallest Integer Divisible by K",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Math",
+      "Modulo"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/math/1015-smallest-integer-divisible-by-k.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/math/1015-smallest-integer-divisible-by-k.md",
+    "markdownContent": "# 1015. Smallest Integer Divisible by K\n\n## 題目描述（中文重點）\n\n給定一個正整數 `k`，我們要找到最短的正整數 `n`，滿足：\n\n1. `n` 只由數字 `1` 組成（例如：1, 11, 111, 1111, ...）。\n2. `n` 可以被 `k` 整除。\n\n回傳這個 `n` 的「位數長度」。  \n如果不存在這樣的 `n`，則回傳 `-1`。\n\n> 題目特別提醒：`n` 可能大到放不進 64-bit integer，所以不能真的把 `n` 建出來。\n\n---\n\n## 解題觀念整理\n\n### 1. 暴力直覺想法（不行的做法）\n\n直覺可能會想這樣做：\n\n- 從 `n = 1, 11, 111, 1111, ...` 一直往上試：\n  - 每次檢查 `n % k == 0` 就回傳長度。\n\n但問題是：\n\n- `n` 只會越來越長，位數會很快超過 `long long` 的範圍。\n- 題目也明確提示：「`n` 可能放不進 64-bit」。\n\n因此不能直接把 `n` 當整數來存，只能「用模運算」來處理。\n\n---\n\n### 2. 只維護「餘數」就好\n\n假設我們現在有某個只由 1 組成的數字 `x`，  \n它對 `k` 的餘數是：\n\n\\[\nr = x \\bmod k\n\\]\n\n下一個數字 `x'` 是：\n\n\\[\nx' = x \\cdot 10 + 1\n\\]\n\n則它對 `k` 的餘數是：\n\n\\[\nx' \\bmod k = (x \\cdot 10 + 1) \\bmod k = (r \\cdot 10 + 1) \\bmod k\n\\]\n\n也就是說：\n\n> 我們不需要知道真正的 `x` 是多少，只要知道「目前餘數 r」，  \n> 下一步的餘數就可以用 `r = (r * 10 + 1) % k` 來更新。\n\n因此可以這樣做：\n\n1. 一開始用 `r = 1 % k`（對應數字 `1`）。\n2. 檢查如果 `r == 0`，代表 `1` 就可以被整除，長度為 1。\n3. 否則每次更新：\n   ```cpp\n   r = (r * 10 + 1) % k;\n   ```\n   每更新一次，長度就多 1。\n4. 一旦某次 `r == 0`，就回傳目前長度。\n\n---\n\n### 3. 鴿籠原理：為什麼迴圈只需要跑到 k 次？\n\n關鍵：**餘數的可能值只有 k 種**：\n\n- 餘數只可能是 `0, 1, 2, ..., k - 1`，總共 k 種。\n\n我們從 `1` 開始，不斷更新：\n\n```cpp\nr = (r * 10 + 1) % k;\n```\n\n假設我們一直沒有碰到 `r == 0`，那麼「非零餘數」的狀態就會一直變換。\n\n- 最多只能有 `(k - 1)` 種非零餘數。\n- 如果我們走了 `k` 步都沒有出現 `0`，  \n  代表在這 `k` 個狀態當中，至少有兩次餘數是一樣的（鴿籠原理）。\n\n一旦餘數重複，後面就會開始 **循環**，而既然循環裡不存在 `0`，  \n就代表不可能再有某個長度讓餘數變成 0。\n\n所以可以得出結論：\n\n> 最多只需要檢查 **k 次** 長度就夠了。  \n> 如果前 k 次內沒有出現 `r == 0`，直接回傳 `-1`。\n\n這就是為什麼我們的迴圈寫成：\n\n```cpp\nfor (int len = 1; len <= k; ++len) { ... }\n```\n\n而不是無限制增加長度。\n\n---\n\n### 4. 特殊剪枝：遇到 2 或 5 直接回傳 -1\n\n任何只由 `1` 組成的整數：\n\n- 尾數永遠是 `1`。\n- 因此不可能被 `2` 整除（奇數）。\n- 也不可能被 `5` 整除（尾數不是 0 或 5）。\n\n所以如果 `k` 含有因數 `2` 或 `5`，就不可能有答案：\n\n```cpp\nif (k % 2 == 0 || k % 5 == 0) {\n    return -1;\n}\n```\n\n這個檢查可以在一開始就做掉一些不可能的 case。\n\n---\n\n## C++ 解法程式碼\n\n這份是你最後得到的乾淨寫法，可以直接提交 LeetCode：\n\n```cpp\nclass Solution {\npublic:\n    int smallestRepunitDivByK(int k) {\n        // 若含有因數 2 或 5，不可能被全為 1 的數整除\n        if (k % 2 == 0 || k % 5 == 0) {\n            return -1;\n        }\n\n        int r = 1 % k;  // 對應數字 1 的餘數\n        for (int len = 1; len <= k; ++len) {\n            if (r == 0) {\n                return len; // 長度為 len 的全 1 數可整除 k\n            }\n            // 下一個數字：在末尾多接一個 '1'\n            r = (r * 10 + 1) % k;\n        }\n        return -1; // 超過 k 長度仍沒出現 r == 0，代表不可能\n    }\n};\n```\n\n若你想保留你原本比較精簡的版本（沒有剪枝），也可以是：\n\n```cpp\nclass Solution {\npublic:\n    int smallestRepunitDivByK(int k) {\n        int r = 1 % k;\n        for (int len = 1; len <= k; ++len) {\n            if (r == 0) return len;\n            r = (r * 10 + 1) % k;\n        }\n        return -1;\n    }\n};\n```\n\n---\n\n## 複雜度分析\n\n- 迴圈最多跑 `k` 次，每次都是 O(1) 的運算：\n  - 模運算、乘法、加法。\n- **時間複雜度**：\\(O(k)\\)\n- **空間複雜度**：\\(O(1)\\)\n\n在題目限制 `1 <= k <= 10^5` 下，`O(k)` 是可接受的。\n\n---\n\n## 個人筆記 / 小反思\n\n- 一開始卡住的點是「不知道迴圈長度要設多少」，  \n  後來想到用 **鴿籠原理** 去推「最多只需要試到長度 = k」就非常關鍵。\n- 這題也是典型的「**不能存整個數，只能存模數（餘數）**」的題目，  \n  跟很多「大數 / 重複 pattern」的問題都有共通技巧：\n  - 不關心數字本身，只關心它對某個值的餘數。\n- 記住這個基本 pattern 之後，  \n  之後看到「重複字元構成的大數 + 取模 / 可被整除」之類的題目，  \n  大多數都可以直接往「維護餘數 + 鴿籠原理 / 餘數循環」這條路想。\n",
+    "createdAt": "2025-11-28"
+  },
+  {
     "id": "leetcode-1262",
     "originalId": 1262,
     "title": "1262. Greatest Sum Divisible by Three",
@@ -415,6 +464,23 @@ export const PROBLEMS: Problem[] = [
     "createdAt": "2025-11-24"
   },
   {
+    "id": "leetcode-1334",
+    "originalId": 1334,
+    "title": "1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Graph",
+      "Shortest Path"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/graph/1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/graph/1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance.md",
+    "markdownContent": "# 1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance\n\n## 題目描述（中文重點）\n\n有 `n` 個城市（編號 `0 ~ n-1`），給定一個邊陣列 `edges`：\n\n- `edges[i] = [from_i, to_i, weight_i]` 代表城市 `from_i` 與城市 `to_i` 之間有一條 **雙向、帶權重** 的邊，距離為 `weight_i`。\n- 再給一個整數 `distanceThreshold`。\n\n定義：\n\n> 對於城市 `i`，若存在一條路徑從 `i` 到 `j`，且最短路徑距離 `dist(i, j) <= distanceThreshold`，則稱城市 `j` 在 `i` 的「可達集合」裡。\n\n題目要回傳：\n\n- 使得「可達城市數量」**最少**的那個城市編號。\n- 若有多個城市的可達數量相同，取 **編號最大** 的那一個。\n\n---\n\n## 解題核心觀念\n\n### 1. 這題本質：**全點對最短路徑（APSP）**\n\n因為：\n\n- 我們需要知道「每一個城市 `i` 到其它所有城市 `j` 的最短距離」。\n- `n` 的上限為 100（查約略限制），用 Floyd–Warshall 的時間複雜度 `O(n^3)` 是完全可以接受的：\n\n\\[\nO(n^3) = O(100^3) = 10^6 \\text{ 級別}\n\\]\n\n因此這題很適合作為 Floyd–Warshall 的練習。\n\n---\n\n### 2. Floyd–Warshall 的基本流程\n\n1. 用一個 `dist[n][n]` 的矩陣，初始化為：\n   - `dist[i][i] = 0`\n   - 若 `i` 與 `j` 有邊，`dist[i][j] = weight(i, j)`（雙向圖也要設 `dist[j][i]`）\n   - 其他沒有邊的地方設為「無限大」（例如 `INF = numeric_limits<int>::max()`）\n\n2. 三重迴圈（中間點 k，起點 i，終點 j）：\n\n\\[\ndist[i][j] = \\min(dist[i][j],\\ dist[i][k] + dist[k][j])\n\\]\n\n程式上寫成：\n\n```cpp\nfor (int k = 0; k < n; ++k) {\n    for (int i = 0; i < n; ++i) {\n        for (int j = 0; j < n; ++j) {\n            if (dist[i][k] != INF && dist[k][j] != INF) {\n                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);\n            }\n        }\n    }\n}\n```\n\n注意：\n\n- 先檢查 `dist[i][k]` 和 `dist[k][j]` 不為 INF，才進行加法，避免溢位或無意義操作。\n- 做完後，`dist[i][j]` 就是從 `i` 到 `j` 的 **最短路徑距離**（若仍為 INF 代表完全不可達）。\n\n---\n\n### 3. 算出每個城市的「可達數量」\n\n在得到 `dist` 矩陣之後，對每個城市 `i`：\n\n- 計算有多少 `j` 滿足 `dist[i][j] <= distanceThreshold`。\n- 根據題目定義，`i == j` 且距離為 0 時也會被算進去（自我可達），  \n  但因為每個城市對自己距離都是 0，所以「有沒有把自己算進去」不影響最後誰最小、誰最大，只是所有人的計數都 +1。\n\n遍歷方式：\n\n```cpp\nint minCity = INT_MAX;\nint bestCity = -1;\n\nfor (int i = 0; i < n; ++i) {\n    int reachable = 0;\n    for (int j = 0; j < n; ++j) {\n        if (dist[i][j] <= distanceThreshold) {\n            ++reachable;\n        }\n    }\n\n    // 若可達數量更小，或相同但城市編號更大，更新答案\n    if (reachable <= minCity) {\n        minCity = reachable;\n        bestCity = i;\n    }\n}\n```\n\n這裡條件寫 `<=`，確保在「可達數量相同」時會選編號較大的城市。\n\n---\n\n## C++ 解法程式碼（Floyd–Warshall）\n\n```cpp\nclass Solution {\npublic:\n    int findTheCity(int n, vector<vector<int>>& edges, int distanceThreshold) {\n        // 1. 初始化距離矩陣為「無限大」\n        const int INF = numeric_limits<int>::max();\n        vector<vector<int>> dist(n, vector<int>(n, INF));\n\n        // 2. 自己到自己距離為 0\n        for (int i = 0; i < n; ++i) {\n            dist[i][i] = 0;\n        }\n\n        // 3. 根據 edges 填入圖的邊（無向圖）\n        for (const auto& edge : edges) {\n            int u = edge[0];\n            int v = edge[1];\n            int w = edge[2];\n            dist[u][v] = min(dist[u][v], w); // 若有重邊可用 min（保險）\n            dist[v][u] = min(dist[v][u], w);\n        }\n\n        // 4. Floyd–Warshall：枚舉中繼點 k，起點 i，終點 j\n        for (int k = 0; k < n; ++k) {\n            for (int i = 0; i < n; ++i) {\n                if (dist[i][k] == INF) continue; // 這一層的剪枝可省但略微加速\n                for (int j = 0; j < n; ++j) {\n                    if (dist[k][j] == INF) continue;\n                    if (dist[i][k] + dist[k][j] < dist[i][j]) {\n                        dist[i][j] = dist[i][k] + dist[k][j];\n                    }\n                }\n            }\n        }\n\n        // 5. 找出可達城市數最少的城市（同數量時取編號較大者）\n        int minCity = INT_MAX;\n        int bestCity = -1;\n\n        for (int i = 0; i < n; ++i) {\n            int reachable = 0;\n            for (int j = 0; j < n; ++j) {\n                if (dist[i][j] <= distanceThreshold) {\n                    ++reachable;\n                }\n            }\n\n            // 若更小，或同樣小但 i 較大，就更新\n            if (reachable <= minCity) {\n                minCity = reachable;\n                bestCity = i;\n            }\n        }\n\n        return bestCity;\n    }\n};\n```\n\n---\n\n## 複雜度分析\n\n- `dist` 矩陣為 `n x n`，初始化 `O(n^2)`。\n- Floyd–Warshall 三重迴圈：`O(n^3)`。\n- 最後計數部分：`O(n^2)`。\n\n整體主要瓶頸：\n\n- **時間複雜度**：\\(O(n^3)\\)\n- **空間複雜度**：\\(O(n^2)\\)\n\n對於 `n <= 100` 的限制，這是可接受且常見的解法。\n\n---\n\n## 個人筆記 / 反思\n\n- 這題一開始看到「每個城市到其他城市的最短距離」時，很自然會想到：\n  - 對每個節點跑一次 Dijkstra（`O(n * (m log n))`）  \n  - 或直接用 Floyd–Warshall（`O(n^3)`）。\n- 因為 `n` 不大（約 100 級），所以 Floyd–Warshall 的實作反而更簡潔、好寫。\n- 需要注意的幾個小細節：\n  1. **距離初始化**：  \n     - 自己到自己是 `0`  \n     - 沒有邊要設為 `INF`（用 `numeric_limits<int>::max()`）\n  2. **更新條件**：  \n     - 只有當 `dist[i][k]` 和 `dist[k][j]` 都不是 `INF` 時，才進行 `+` 和 `min`。\n  3. **答案 tie-breaking**：  \n     - 這題要求「可達城市數最少」  \n     - 當數量相同時選 **城市編號較大**，所以 if 條件用 `<=`。\n- 心得：  \n  - 這題是很標準的 Floyd–Warshall 應用題，  \n  - 也是練習「從 APSP → 進一步做某種統計（可達點數量）」的典型例子。  \n  - 實作上只要框架記熟，之後看到類似「小 n + 所有點對最短路徑」的題目，就可以直接套用了。\n",
+    "createdAt": "2025-11-28"
+  },
+  {
     "id": "leetcode-1578",
     "originalId": 1578,
     "title": "1578. Minimum Time to Make Rope Colorful",
@@ -430,6 +496,38 @@ export const PROBLEMS: Problem[] = [
     "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/greedy/1578-minimum-time-to-make-rope-colorful.md",
     "markdownContent": "# 1578. Minimum Time to Make Rope Colorful\n\n> 類型：Greedy 一次掃描 | 難度：Medium\n> 關鍵觀念：**每段連續相同顏色，只保留耗時最大的那一顆，其餘全部移除**。等價於「段內總和 − 段內最大值」。\n\n---\n\n## 題意重述（用自己的話）\n有一串氣球，`colors[i]` 是第 `i` 顆的顏色，`neededTime[i]` 是移除該顆所需時間。要讓整條繩子**不出現相鄰同色**。可任意移除部分氣球，目標是**最小化總移除時間**。\n\n---\n\n## 解題策略（Greedy，單趟）\n- 掃描整串字元，把相鄰同色視為「一段」。  \n- 在同一段中，最後一定**只留一顆**；為使總成本最小，應**保留耗時最大**的那顆，其餘全部刪掉。  \n- 實作時不需真的刪元素：\n  - 維護 `keep` = 目前這段中「保留者」的耗時（段內最大值）。\n  - 當遇到同色時：把 `min(keep, neededTime[i])` 加到答案（刪掉較小的那顆），再令 `keep = max(keep, neededTime[i])`。  \n  - 當換色時：這段結束，新段 `keep = neededTime[i]`。\n\n> 為什麼正確？  \n> 對任一段，移除總成本固定為「總和 − 最大值」。逐一比較時，每次只刪掉兩者中較小者，等同最終只保留段內最大者。\n\n---\n\n## 你的實作（C++17）\n```cpp\nclass Solution {\npublic:\n    int minCost(string colors, vector<int>& neededTime) {\n        int ans = 0;\n        int keep = neededTime[0];\n        for(int i = 1; i < colors.length(); ++i ){\n            if(colors[i] == colors[i-1]){\n                ans += min(keep, neededTime[i]);\n                keep = max(keep, neededTime[i]);\n            }\n            else{\n                keep = neededTime[i];\n            }\n        }\n        return ans;\n    }\n};\n```\n\n---\n\n## 複雜度\n- 時間：`O(n)`（單次線性掃描）。  \n- 空間：`O(1)` 額外空間（原地只用常數變數）。\n\n---\n\n## 邊界與常見坑\n- 長度 `n = 0/1` → 答案為 `0`。  \n- 只比較 `i` 與 `i-1`，避免越界；避免用 `i+1` 造成漏算或麻煩的邊界處理。  \n- 不需要真的刪資料結構（不必 `erase/remove`），直接累加要刪除的耗時即可。\n\n---\n\n## 一句話總結\n**同色連續段只留一顆、且保留段內耗時最大的那顆**，答案即為把其他較小者的耗時全部加總。\n",
     "createdAt": "2025-11-24"
+  },
+  {
+    "id": "leetcode-1584",
+    "originalId": 1584,
+    "title": "1584. Min Cost to Connect All Points",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "Graph"
+    ],
+    "description": "給定平面上 n 個點 `points[i] = [xi, yi]`。",
+    "hasNote": true,
+    "noteUrl": "/content/problems/graph/1584-min-cost-to-connect-all-points.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/graph/1584-min-cost-to-connect-all-points.md",
+    "markdownContent": "# 1584. Min Cost to Connect All Points\n\n## Problem Information\n- **Problem ID**: 1584\n- **Title**: Min Cost to Connect All Points\n- **Difficulty**: Medium\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/min-cost-to-connect-all-points/\n- **Topics**: Graph, Minimum Spanning Tree, Kruskal, Union-Find (DSU)\n\n## Problem Description\n\n給定平面上 n 個點 `points[i] = [xi, yi]`。\n\n任兩點連線成本為 **Manhattan distance**：\n\n\\[\n|x_i - x_j| + |y_i - y_j|\n\\]\n\n請回傳讓所有點連通的**最小總成本**。  \n「所有點連通且任兩點之間恰好一條簡單路徑」等價於：要找一棵 **Minimum Spanning Tree (MST)**。\n\n---\n\n## Solutions\n\n### Solution 1: Kruskal + DSU（Union-Find）\n**核心想法**\n- 把每個點視為 vertex，任兩點都有邊（complete graph），邊權是 Manhattan distance。\n- 依邊權排序後，用 Kruskal 依序嘗試加入邊。\n- 用 DSU 判斷是否會形成 cycle：只有 `Find(u) != Find(v)` 才能加入，並 `Union(u, v)`。\n\n**Time Complexity**: \n\n- 建邊：\\(O(n^2)\\)\n- 排序：\\(O(n^2 \\log n)\\)\n- DSU：近似 \\(O(\\alpha(n))\\)（幾乎常數）\n- **總計：\\(O(n^2 \\log n)\\)**\n\n**Space Complexity**: \n\n- edges：\\(O(n^2)\\)\n- DSU：\\(O(n)\\)\n\n#### Code\n```cpp\nclass Solution {\npublic:\n    struct DSU{\n        std::vector<int> p, sz;\n        DSU (int n = 0){ init(n); }\n        void init(int n){\n            p.resize(n);\n            sz.assign(n,1);\n            std::iota(p.begin(), p.end(), 0);\n        }\n\n        int Find(int x){\n            return p[x] == x ? x : p[x] = Find(p[x]);\n        }\n\n        bool Union(int x, int y){\n            int a = Find(x), b = Find(y);\n            if(a == b) {return false;}\n            if(sz[a] < sz[b]){ std::swap(a,b); } // 把 b 變成小的那個\n            p[b] = a;\n            sz[a] += sz[b];\n            return true;\n        }\n\n    };\n\n    struct Edge{\n        int u, v;\n        int w;\n\n        bool operator<(Edge const& other) const {\n            return this->w < other.w;\n        }\n    };\n\n    int minCostConnectPoints(std::vector<std::vector<int>>& points) {\n        int n = (int)points.size();\n        // Build edge\n        std::vector<Edge> edges;\n        edges.reserve((long long)n*(n-1)/2);\n        for(int i = 0; i < n; ++i){\n            for(int j = i + 1; j <n; ++j){\n                int w = std::abs(points[i][0] - points[j][0]) + std::abs(points[i][1] - points[j][1]);\n                edges.push_back({i,j,w});\n            }\n        }\n\n        // sort\n        std::sort(edges.begin(), edges.end());\n\n        // Kruskal\n        DSU dsu(n);\n        long long cost = 0;\n        int used = 0;\n        for(auto& e : edges){\n            if(dsu.Union(e.u, e.v)){\n                cost += e.w;\n                used++;\n                if(used == n-1){ break; } // MST done\n            }\n        }\n        return (int)cost;\n    }\n};\n```\n\n### Solution 2: Prim (Optional)\n> 本題也可用 Prim（用「每次找離 MST 最近的點」），在 n ≤ 1000 時可做到 **\\(O(n^2)\\)** 且不需要顯式建所有邊。  \n> 若你之後想把同題的 Prim 也整理進筆記，我可以照同模板補上。\n\n---\n\n## Personal Notes\n- **Kruskal 裸題**：看到「要讓所有點連通 + 成本最小 + 唯一路徑」就要想到 **MST**。\n\n- 實作時主要卡在語法與 DSU 模板細節（Find/Union、path compression、union by size）。\n\n- ✅ 這個 **Union-Find 模板（LeetCode 版本）一定要牢牢記住**：\n  - MST（Kruskal）\n  - 判斷 cycle\n  - 連通塊合併 / 動態連通\n  都會反覆出現。\n\n- 小提醒：本題距離是 **Manhattan distance**，不是 Euclidean（不用 sqrt）。\n\n",
+    "createdAt": "2025-12-12"
+  },
+  {
+    "id": "leetcode-1590",
+    "originalId": 1590,
+    "title": "1590. Make Sum Divisible by P",
+    "difficulty": "Medium",
+    "source": "LeetCode",
+    "topics": [
+      "HashTable"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/hashtable/1590-make-sum-divisible-by-p.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/hashtable/1590-make-sum-divisible-by-p.md",
+    "markdownContent": "# 1590. Make Sum Divisible by P\n\n## 題目資訊\n- **Problem ID**: 1590\n- **Title**: Make Sum Divisible by P\n- **Difficulty**: Medium\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/make-sum-divisible-by-p\n- **Topics**: Prefix Sum（前綴和）, Hash Map（雜湊表）, Modular Arithmetic（取餘數運算）\n\n---\n\n## 題目描述（中文整理）\n\n給你一個正整數陣列 `nums`，以及一個正整數 `p`。\n\n你可以**刪除一段連續子陣列（subarray）**，讓「剩下元素的總和」可以被 `p` 整除。  \n規定：\n\n- 子陣列可以為空（也就是可以不刪）。\n- **不能**把整個陣列都刪掉。\n- 回傳「最短」需要刪掉的 subarray 長度；如果做不到，回傳 `-1`。\n\n---\n\n## 解法 1：Prefix Sum + Hash Map（O(n)）\n\n### 核心想法\n\n1. 計算整個陣列總和 `S`，只關心 `S % p`：\n   - 設 `rem = S % p`。\n   - 如果 `rem == 0`，代表本來總和就可以被 `p` 整除，**不需要刪任何 subarray**，答案是 `0`。\n\n2. 我們希望刪掉一段 subarray，使「剩下的總和」能被 `p` 整除：\n   - 剩餘總和為 `S - sub`。\n   - 條件：`(S - sub) % p == 0`。\n   - 等價於：`sub % p == rem`。\n   - 所以：**要找一段 subarray，它的和對 p 取餘數剛好是 `rem`**，而且長度要最短。\n\n3. 用前綴和表達 subarray：\n   - 定義 `prefix[j] = (nums[0] + nums[1] + ... + nums[j-1]) % p`，並令 `prefix[0] = 0`。\n   - 對於 subarray `[i .. j-1]`，其總和：\n     \n\n     `sub(i, j) = prefix[j] - prefix[i]`（未取 mod）\n     \n\n     取餘數後：\n     \n\n     `sub(i, j) % p = (prefix[j] - prefix[i]) % p`。\n   - 我們要：\n     \n\n     `(prefix[j] - prefix[i]) % p == rem`。\n\n4. 將條件改寫成「要找哪個 prefix」：\n   - `(prefix[j] - prefix[i]) % p == rem`\n   - 等價於：`prefix[i] ≡ prefix[j] - rem (mod p)`。\n   - 在程式中寫成：\n     \n\n     `need = (prefix[j] - rem + p) % p`（+p 避免負數，最後再 % p）。\n   - 也就是說：**對每個 j，我們要找一個 i，使得 `prefix[i] == need`**。\n\n5. 使用 `unordered_map<int, int>` 當作「餘數桶」：\n   - `mp[r]`：紀錄「目前為止，前綴和餘數為 r 的**最新 index**」。\n   - 一開始 `mp[0] = 0`，表示 `prefix[0] = 0` 在位置 0。\n   - 掃描 `j = 1..n`：\n     1. 更新 `prefix = (prefix + nums[j-1]) % p`，這是 `prefix[j]`。\n     2. 算出我們需要的餘數：`need = (prefix - rem + p) % p`。\n     3. 如果 `need` 在 `mp` 中：\n        - 取 `i = mp[need]`。\n        - subarray 長度為 `j - i`（對應到 `[i .. j-1]`）。\n        - 更新 `ans = min(ans, j - i)`。\n     4. 最後更新 `mp[prefix] = j`，記下「這個餘數最新出現的位置」。\n\n6. 不能刪掉整個陣列：\n   - 理論上最大可能的 subarray 長度是 `n`（從 0 刪到 n-1）。\n   - 但題目禁止刪掉整個陣列，所以：\n     - 初始 `ans = n`。\n     - 結束後如果 `ans == n`，代表只能刪整個陣列或根本沒合適的 subarray ⇒ 回傳 `-1`。\n     - 否則回傳 `ans`。\n\n### 正確性直覺\n\n- `rem` 固定代表「需要被補掉」的餘數。\n- 每次走到 `j`，`prefix[j]` 代表前 `j` 個元素的總和餘數。\n- 找到 `i` 使得 `prefix[i]` = `need`，就保證 `[i .. j-1]` 這段 subarray 的和 % p = rem，刪掉它就可以讓剩餘和被 p 整除。\n- 為了拿到**最短長度**，對每個餘數，我們永遠保存「最新的 index」，讓之後的 `j` 減出來的 `j - i` 盡可能小。\n\n---\n\n## 複雜度分析\n\n- **時間複雜度**：  \n  - 單次遍歷陣列，對每個 `j` 做 O(1) 的 hash 查詢與更新。  \n  - 整體為 **O(n)**。\n- **空間複雜度**：  \n  - `unordered_map` 最多存 O(n) 種不同餘數。  \n  - 整體為 **O(n)**。\n\n---\n\n## 參考程式碼（C++，可直接提交）\n\n> 說明：這份程式碼對應上面的解法，採用 prefix + hash map，並處理了「不能刪整個陣列」與 long long 溢位等細節。\n\n```cpp\nclass Solution {\npublic:\n    int minSubarray(vector<int>& nums, int p) {\n        int n = nums.size();\n\n        // 先計算整體總和的餘數 rem\n        long long total = 0;\n        for (int x : nums) {\n            total = (total + x) % p;\n        }\n        int rem = (int)(total % p);\n        if (rem == 0) return 0;   // 不用刪任何 subarray\n\n        // mp[餘數] = 對應 prefix 的最新 index（prefix 的定義是前 j 個元素）\n        unordered_map<int,int> mp;\n        mp[0] = 0;                // prefix[0] = 0，在位置 0（還沒用任何元素）\n\n        int ans = n;              // 最壞情況：刪整個陣列（不合法）\n        int prefix = 0;           // 目前的 prefix[j]\n\n        // j 從 1 跑到 n，表示 prefix 長度（用掉 nums[0..j-1]）\n        for (int j = 1; j <= n; ++j) {\n            prefix = (prefix + nums[j - 1]) % p;     // 算出 prefix[j]\n\n            // 想找一個 i < j，讓 (prefix[j] - prefix[i]) % p == rem\n            // => prefix[i] == (prefix[j] - rem + p) % p\n            int need = (prefix - rem + p) % p;\n\n            auto it = mp.find(need);\n            if (it != mp.end()) {\n                int i = it->second;\n                ans = min(ans, j - i);  // subarray 長度 = j - i（對應 [i .. j-1]）\n            }\n\n            // 為了讓未來的 j 可以拿到「最短長度」，更新此餘數的最新 index\n            mp[prefix] = j;\n        }\n\n        // 不能刪掉整個陣列；如果最小長度還是 n，就代表沒辦法\n        if (ans == n) return -1;\n        return ans;\n    }\n};\n```\n\n---\n\n## 個人筆記 & 心得\n\n- 一開始如果暴力枚舉所有 subarray，時間複雜度會是 O(n²)，在 n 到 1e5 一定 TLE。\n- 關鍵轉折是把條件 `(S - sub) % p == 0` 改寫成 `sub % p == rem`，再用 prefix 差值來表達 subarray。\n- 記住這個常用模板：\n  - 想找「最短 subarray，使 subarray 的和對某個 p 取餘數等於固定值」，  \n    幾乎都可以用「prefix + hash（餘數桶）」來做。\n- 注意細節：\n  - 不能刪掉整個陣列 ⇒ 用 `ans == n` 來判斷失敗。\n  - 計算 `need` 時要寫 `(prefix - rem + p) % p` 避免負數。\n  - 總和可能很大，所以 total 先用 `long long`，再 `% p`。\n",
+    "createdAt": "2025-11-30"
   },
   {
     "id": "leetcode-2099",
@@ -494,6 +592,23 @@ export const PROBLEMS: Problem[] = [
     "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/hashtable/2353-design-a-food-rating-system.md",
     "markdownContent": "\n# 2353. Design a Food Rating System\n\n## Problem Information\n- **Problem ID**: 2353\n- **Title**: Design a Food Rating System\n- **Difficulty**: Medium\n- **Source**: LeetCode\n- **Link**: https://leetcode.com/problems/design-a-food-rating-system/\n- **Topics**: Hash Map, Ordered Set, Design\n\n## Problem Description\n\nDesign a system to support:\n1. `changeRating(food, newRating)`: update the rating of a given food.\n2. `highestRated(cuisine)`: return the name of the highest-rated food for the given cuisine; if there is a tie, return the lexicographically smaller name.\n\nYou are given arrays `foods`, `cuisines`, and `ratings` of length `n`, where `foods[i]` is the food name, `cuisines[i]` is its cuisine, and `ratings[i]` is its initial rating.\n\n## Solutions\n\n### Solution 1: HashMap + Ordered Set per Cuisine\n**Time Complexity**: \n- Initialization: O(n log n)\n- `changeRating`: O(log n) per update\n- `highestRated`: O(1) to read `begin()` (amortized; the ordered set maintains ordering)\n\n**Space Complexity**: O(n) for maps and ordered sets\n\n**Key Idea**: \n- Maintain `food -> (cuisine, rating)` in an `unordered_map` for O(1) lookups during updates.\n- For each cuisine, maintain an ordered `set` of pairs `(-rating, name)` so that the **best** item is at `begin()` (highest rating; ties broken by lexicographically smaller name).  \n- On rating change: remove the old pair, update the map, insert the new pair.\n\n#### Code\n```cpp\n#include <string>\n#include <vector>\n#include <unordered_map>\n#include <set>\nusing namespace std;\n\nclass FoodRatings {\npublic:\n    // food -> (cuisine, rating)\n    unordered_map<string, pair<string,int>> info;\n    // cuisine -> ordered set of (-rating, name)\n    unordered_map<string, set<pair<int,string>>> byCuisine;\n\n    FoodRatings(vector<string>& foods, vector<string>& cuisines, vector<int>& ratings) {\n        int n = (int)foods.size();\n        info.reserve(n * 2);\n        for (int i = 0; i < n; ++i) {\n            info[foods[i]] = {cuisines[i], ratings[i]};\n            byCuisine[cuisines[i]].insert({-ratings[i], foods[i]});\n        }\n    }\n\n    void changeRating(string food, int newRating) {\n        auto &pr = info[food];         // pr.first = cuisine, pr.second = oldRating\n        const string &c = pr.first;\n        int oldRating = pr.second;\n\n        auto &S = byCuisine[c];\n        S.erase({-oldRating, food});   // remove old record\n        pr.second = newRating;         // update rating\n        S.insert({-newRating, food});  // insert new record\n    }\n\n    string highestRated(string cuisine) {\n        const auto &S = byCuisine[cuisine];\n        // set is ordered by (-rating, name) ascending; begin() gives highest rating & lexicographically smallest name\n        return S.begin()->second;\n    }\n};\n```\n\n### Solution 2: HashMap + Priority Queue with Lazy Deletion (Optional)\n**Time Complexity**: \n- `changeRating`: O(log n) (push a new entry)\n- `highestRated`: amortized O(log n) (pop stale entries until top is valid)\n\n**Space Complexity**: O(n)\n\n**Idea**: Keep a `priority_queue` per cuisine storing `(rating, name, version)` and a hash map for current `(cuisine, rating)`; during query, pop outdated entries (lazy deletion). Slightly more code, similar complexity; ordered set is cleaner for strict ordering.\n\n## Personal Notes\n這是我第一次寫系統設計的部分。正確的做法是先確認需要的操作（初始化、更新、查詢），再決定資料結構與維護方式。這題的關鍵是把需求拆成兩個索引：\n- 以食物名稱查 `(cuisine, rating)`（用 `unordered_map`）\n- 以菜系查「最高分、同分字典序最小」（用 per-cuisine 的 ordered `set` 存 `(-rating, name)`）\n\n更新時遵守「先刪舊、後插新」的不變量，確保集合內容與當前評分同步。這題本質是把 DSA 組件（hash + ordered set + key 設計）組裝成可維護的系統。\n",
     "createdAt": "2025-10-05"
+  },
+  {
+    "id": "leetcode-2435",
+    "originalId": 2435,
+    "title": "2435. Paths in Matrix Whose Sum Is Divisible by K",
+    "difficulty": "Hard",
+    "source": "LeetCode",
+    "topics": [
+      "Dynamic Programming",
+      "Matrix"
+    ],
+    "description": "暫無描述",
+    "hasNote": true,
+    "noteUrl": "/content/problems/dynamicprogramming/2435-paths-in-matrix-whose-sum-is-divisible-by-k.md",
+    "filePath": "/Users/waynliu/Documents/GitHub/ShuaShua-Note/content/problems/dynamicprogramming/2435-paths-in-matrix-whose-sum-is-divisible-by-k.md",
+    "markdownContent": "# 2435. Paths in Matrix Whose Sum Is Divisible by K\n\n## 題目敘述（中文重點）\n\n給定一個 `m x n` 的非負整數矩陣 `grid`，以及一個整數 `k`。  \n\n你從左上角 `(0, 0)` 出發，只能 **向右** 或 **向下** 移動，目標是走到右下角 `(m - 1, n - 1)`。\n\n定義一條路徑的「路徑和」為路上所有格子數值的總和。題目要你計算：\n\n> 有多少條路徑，使得「路徑和」可以被 `k` 整除（也就是 `sum % k == 0`）。\n\n由於答案可能非常大，需回傳對 `1e9 + 7` 取模後的結果。\n\n條件限制（摘要）：\n\n- `1 <= m, n`\n- `m * n <= 5 * 10^4`\n- `0 <= grid[i][j] <= 100`\n- `1 <= k <= 50`\n\n---\n\n## 解題直覺與觀念\n\n這題本質上是一個 **「計數型 DP」**：\n\n- 我們不是要最短路徑、最大和，而是要「**有多少種走法**」。\n- 同時又有一個條件：「路徑和 % k == 0」。\n\n**關鍵想法**：  \n與其記錄「路徑和的真實值」，我們只需要記錄「路徑和對 k 的餘數」，因為：\n\n- 兩條路徑的總和如果對 `k` 的餘數相同，它們之後在加數字、取模的行為是一樣的。\n- `k <= 50`，所以餘數只會是 0 ~ k-1，狀態數量是可接受的。\n\n因此可以用一個三維 DP：\n\n> `dp[i][j][r]` = 從 `(0,0)` 走到 `(i-1, j-1)` 的所有路徑中，  \n> 路徑和 **mod k = r** 的路徑數量。\n\n（注意實作時我是用 1-based 的 `i, j`，對應到 `grid[i-1][j-1]`。）\n\n---\n\n## DP 狀態定義\n\n令 `mod = 1e9 + 7`。  \n我們建立三維陣列：\n\n```cpp\ndp[i][j][r]\n```\n\n意義為：\n\n- 走到格子 `(i-1, j-1)`（對應原始 `grid[i-1][j-1]`）時，\n- 所有可能路徑中，路徑總和對 `k` 取模等於 `r` 的「走法數量」。\n\n> 註：為了邊界好處理，程式採用 `dp` 大小為 `(m+1) x (n+1) x k`，索引從 1 開始。  \n> 即 grid 的 `(row, col)` 對應到 dp 的 `(row+1, col+1)`。\n\n---\n\n## 初始條件\n\n一開始在左上角 `(0,0)`，路徑只包含這一格 `grid[0][0]`。  \n\n令 `v0 = grid[0][0] % k`，表示這格本身的模數。\n\n所以：\n\n- `dp[1][1][v0] = 1`  \n- 其他 `dp[1][1][r]`（`r != v0`）都是 0。\n\n---\n\n## 狀態轉移\n\n從 `(i-1, j-1)` 這一格來看，它的數值為：\n\n```cpp\nvalue = grid[i-1][j-1] % k;\n```\n\n假設我們想知道 `dp[i][j][r]`：  \n也就是走到 `(i-1, j-1)`，路徑總和 mod k = `r` 的走法數量。\n\n來自哪裡？  \n只能從「上面 `(i-1, j)`」或「左邊 `(i, j-1)`」走過來：\n\n- 上面：`dp[i-1][j][prevMod]`\n- 左邊：`dp[i][j-1][prevMod]`\n\n其中 `prevMod` = 前一格的路徑和模數。  \n當我們走到 `(i-1, j-1)` 這格時，新的模數 `r` 應該滿足：\n\n\\[\n(prevMod + value) \\bmod k = r\n\\]\n\n因此有：\n\n\\[\nprevMod \\equiv r - value \\pmod{k}\n\\]\n\n在程式中，我們可以寫成：\n\n```cpp\nprevMod = (r - value + k) % k;\n```\n\n這樣就保證 `prevMod` 落在 `0 ~ k-1`。\n\n所以對每個 `r`，轉移就是：\n\n\\[\ndp[i][j][r] = dp[i-1][j][prevMod] + dp[i][j-1][prevMod] \\pmod{mod}\n\\]\n\n整體流程：\n\n1. 外層跑所有 `i = 1..m`\n2. 中間跑所有 `j = 1..n`\n3. 內層跑所有 `r = 0..k-1`\n4. 對當前格子 `(i-1,j-1)`，先算 `value = grid[i-1][j-1] % k`\n5. 對每個目標餘數 `r`：\n   - 算出 `prevMod = (r - value + k) % k`\n   - 用上方 + 左方的 `prevMod` 累加進 `dp[i][j][r]`\n\n---\n\n## 最終答案\n\n右下角是 `(m-1, n-1)`，對應 `dp[m][n][*]`。  \n\n題目要的是 **路徑和可以被 `k` 整除**，也就是「模數為 0」的走法數量：\n\n> 最終答案 = `dp[m][n][0]`\n\n---\n\n## C++ 實作程式碼\n\n下面是你現在的實作，已經是標準做法，僅加上一點註解：\n\n```cpp\nclass Solution {\npublic:\n    int numberOfPaths(vector<vector<int>>& grid, int k) {\n        int m = grid.size();\n        int n = grid[0].size();\n        int mod = 1000000007;\n\n        // dp[i][j][r]：\n        // 走到 (i-1, j-1) 時，路徑和 mod k = r 的路徑數量\n        // 使用 1-based index，方便處理邊界\n        auto dp = vector(m + 1, vector(n + 1, vector<long long>(k)));\n\n        for (int i = 1; i <= m; ++i) {\n            for (int j = 1; j <= n; ++j) {\n                if (i == 1 && j == 1) {\n                    // 起點：只有一條路徑，和就是 grid[0][0]\n                    dp[i][j][grid[0][0] % k] = 1;\n                    continue;\n                }\n\n                int value = grid[i - 1][j - 1] % k;\n\n                // 對每一個目標餘數 r，從上方與左方的 prevMod 轉移過來\n                for (int r = 0; r < k; ++r) {\n                    int prevMod = (r - value + k) % k;\n                    dp[i][j][r] = (dp[i - 1][j][prevMod] + dp[i][j - 1][prevMod]) % mod;\n                }\n            }\n        }\n        return dp[m][n][0];\n    }\n};\n```\n\n---\n\n## 複雜度分析\n\n設：\n\n- `M = m`、`N = n`、`K = k`。\n- 題目保證 `M * N <= 5 * 10^4`，`K <= 50`。\n\n時間複雜度：\n\n- 三重迴圈：\n  - `i`：1..M\n  - `j`：1..N\n  - `r`：0..K-1\n- 總共約 `O(M * N * K)`  \n  在最壞情況下約 `5 * 10^4 * 50 = 2.5 * 10^6` 次運算，可接受。\n\n空間複雜度：\n\n- `dp` 的大小為 `(M+1) * (N+1) * K`，約 `O(M * N * K)`，  \n  在限制範圍內也可以接受。\n\n---\n\n## 個人筆記 / 小反思\n\n- 這題的關鍵是 **「把條件 sum % k == 某值，直接變成 DP 狀態的一維」**：\n  - 不記實際總和，只記「模數」。\n  - 典型套路：`狀態加一維：餘數 / 取模值 / 餘數類別`。\n- 轉移時：「我要的是現在的 r」，  \n  不是看「上一格的 r」，而是從數學關係推回去 `prevMod`：\n  - `(prevMod + value) % k = r`\n  - `prevMod = (r - value + k) % k`\n- 實作上，逐格從左上到右下跑，先用「上層與左側」的狀態更新到當前格，  \n  也符合一般走 grid DP 的直覺順序。\n- 類似的題目可以套用同樣觀念：\n  - 路徑和、子陣列和、子序列和，若只關心「mod 某個數」而不是「真實值」，  \n    很常可以把「餘數」當成 DP 的一維來做計數或判斷。",
+    "createdAt": "2025-11-28"
   },
   {
     "id": "leetcode-2598",
@@ -651,11 +766,11 @@ export const getTopicStats = () => [
   },
   {
     "topic": "String",
-    "count": 3
+    "count": 4
   },
   {
     "topic": "Math",
-    "count": 3
+    "count": 4
   },
   {
     "topic": "Linked List",
@@ -667,7 +782,7 @@ export const getTopicStats = () => [
   },
   {
     "topic": "Dynamic Programming",
-    "count": 4
+    "count": 5
   },
   {
     "topic": "Combinatorics",
@@ -691,7 +806,7 @@ export const getTopicStats = () => [
   },
   {
     "topic": "Graph",
-    "count": 1
+    "count": 3
   },
   {
     "topic": "BFS",
@@ -703,7 +818,7 @@ export const getTopicStats = () => [
   },
   {
     "topic": "HashTable",
-    "count": 3
+    "count": 5
   },
   {
     "topic": "SlidingWindow",
@@ -727,10 +842,18 @@ export const getTopicStats = () => [
   },
   {
     "topic": "Modulo",
+    "count": 2
+  },
+  {
+    "topic": "Shortest Path",
     "count": 1
   },
   {
     "topic": "Sort",
+    "count": 1
+  },
+  {
+    "topic": "Matrix",
     "count": 1
   },
   {
@@ -741,8 +864,8 @@ export const getTopicStats = () => [
 
 export const getDifficultyStats = () => ({
   "Easy": 0,
-  "Medium": 34,
-  "Hard": 1
+  "Medium": 40,
+  "Hard": 2
 });
 
 export const getAllProblems = () => PROBLEMS;
